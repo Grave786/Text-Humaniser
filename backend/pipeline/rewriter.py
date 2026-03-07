@@ -11,8 +11,7 @@ try:
 except Exception:
     AutoModelForSeq2SeqLM = None
     AutoTokenizer = None
-
-
+# T5Rewriter class that loads a T5 model and tokenizer, and provides a method to rewrite text segments using the model. It handles loading errors and device selection, and includes a method to warm up the model during API startup.
 class T5Rewriter:
     def __init__(self, model_name: str) -> None:
         self.model_name = model_name
@@ -21,17 +20,17 @@ class T5Rewriter:
         self.device = "cpu"
         self.load_error: Optional[str] = None
         self._loaded = False
-
+    # Load the model and tokenizer, handling errors and device selection.
     def _load(self) -> None:
         if self._loaded:
             return
 
         self._loaded = True
-
+# Check for required libraries
         if AutoTokenizer is None or AutoModelForSeq2SeqLM is None:
             self.load_error = "transformers import failed"
             return
-
+# Check for torch
         if torch is None:
             self.load_error = "torch import failed"
             return
@@ -50,7 +49,7 @@ class T5Rewriter:
             self.load_error = str(exc)
             self.model = None
             self.tokenizer = None
-
+# Rewrite a text segment using the loaded model, with error handling and input length limiting.
     def rewrite(self, segment: str) -> str:
 
         if not segment:
@@ -61,7 +60,7 @@ class T5Rewriter:
         if self.model is None or self.tokenizer is None:
             return segment
 
-        # Limit segment length
+        # Limit segment length to avoid excessive processing time and memory usage 
         words = segment.split()
         if len(words) > 200:
             segment = " ".join(words[:200])
@@ -100,13 +99,13 @@ class T5Rewriter:
             return segment
 
 
-# Model name from environment variable
+# Model name from environment variable or default to "t5-small"
 _T5_MODEL_NAME = os.getenv("T5_MODEL_NAME", "t5-small")
 
-# Singleton rewriter instance
+# Singleton rewriter instance to be used across the application, with a warmup function to load the model during API startup and a status function to check if the model is loaded and ready.
 _rewriter = T5Rewriter(model_name=_T5_MODEL_NAME)
 
-
+# Warmup function to load the model during API startup to avoid first-request delay. 
 def warmup_rewriter() -> None:
     """
     Load the model during API startup
@@ -114,7 +113,7 @@ def warmup_rewriter() -> None:
     """
     _rewriter._load()
 
-
+# Function to get the status of the rewriter, including model name, load status, device, and any load errors. This can be used for monitoring and debugging purposes to ensure the model is ready for use.
 def get_rewriter_status() -> dict:
     _rewriter._load()
     return {
@@ -124,7 +123,7 @@ def get_rewriter_status() -> dict:
         "load_error": _rewriter.load_error,
     }
 
-
+# Function to rewrite a single text segment using the rewriter instance. This is the main function that will be called to rewrite text segments, and it handles empty input by returning it unchanged.
 def rewrite_segment(segment: str) -> str:
     """
     Rewrite a single text segment.

@@ -8,13 +8,13 @@ try:
 except Exception:  # pragma: no cover
     joblib = None
 
-
+# Detector class that loads a machine learning model from a specified path and provides a method to predict probabilities based on input feature vectors. It includes error handling for model loading and prediction, and ensures that the input feature vector is compatible with the expected feature space of the loaded model.
 class Detector:
     def __init__(self, model_path: str) -> None:
         self.model_path = Path(model_path)
         self.model: Optional[object] = None
         self._load_model()
-
+# Load the model from the specified path, handling errors and ensuring that the model is only loaded once.
     def _load_model(self) -> None:
         if joblib is None:
             self.model = None
@@ -24,7 +24,7 @@ class Detector:
                 self.model = joblib.load(self.model_path)
             except Exception:
                 self.model = None
-
+# Predict the probability of a feature vector using the loaded model, with error handling and input length adjustment to match the expected feature space of the model. If the model is not loaded or an error occurs during prediction, return a default probability of 0.5.
     def predict_probability(self, feature_vector: List[float]) -> float:
         if self.model is None:
             return 0.5
