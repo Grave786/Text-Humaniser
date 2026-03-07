@@ -42,44 +42,54 @@ def split_sentences(paragraph: str) -> List[str]:
     return _regex_sentence_split(paragraph)
 
 
-def create_chunks(sentences: List[str], max_words: int = 45) -> List[str]:
+def create_chunks(
+    sentences: List[str], min_sentences: int = 2, max_sentences: int = 3
+) -> List[str]:
     if not sentences:
         return []
-    if max_words < 1:
-        raise ValueError("max_words must be >= 1")
+    if min_sentences < 1:
+        raise ValueError("min_sentences must be >= 1")
+    if max_sentences < min_sentences:
+        raise ValueError("max_sentences must be >= min_sentences")
 
-    chunks: List[str] = []
-    current_words: List[str] = []
+    chunk_groups: List[List[str]] = []
+    current_sentences: List[str] = []
 
     for sentence in sentences:
-        sentence_words = sentence.split()
-        if not sentence_words:
+        if not sentence or not sentence.strip():
             continue
 
-        if len(sentence_words) > max_words:
-            if current_words:
-                chunks.append(" ".join(current_words))
-                current_words = []
-            for i in range(0, len(sentence_words), max_words):
-                chunks.append(" ".join(sentence_words[i : i + max_words]))
-            continue
+        current_sentences.append(sentence.strip())
+        if len(current_sentences) == max_sentences:
+            chunk_groups.append(current_sentences)
+            current_sentences = []
 
-        if len(current_words) + len(sentence_words) <= max_words:
-            current_words.extend(sentence_words)
+    if current_sentences:
+        # Prefer keeping final chunks within the requested range.
+        if len(current_sentences) < min_sentences and chunk_groups:
+            previous = chunk_groups[-1]
+            if len(previous) + len(current_sentences) <= max_sentences:
+                previous.extend(current_sentences)
+            elif len(previous) > min_sentences:
+                current_sentences.insert(0, previous.pop())
+                chunk_groups.append(current_sentences)
+            else:
+                chunk_groups.append(current_sentences)
         else:
-            chunks.append(" ".join(current_words))
-            current_words = sentence_words.copy()
+            chunk_groups.append(current_sentences)
 
-    if current_words:
-        chunks.append(" ".join(current_words))
-
+    chunks = [" ".join(group) for group in chunk_groups]
     return chunks
 
 
-def segment_text(text: str, max_words: int = 45) -> List[str]:
+def segment_text(
+    text: str, min_sentences: int = 2, max_sentences: int = 3
+) -> List[str]:
     all_chunks: List[str] = []
     for paragraph in split_paragraphs(text):
         sentences = split_sentences(paragraph)
-        paragraph_chunks = create_chunks(sentences, max_words=max_words)
+        paragraph_chunks = create_chunks(
+            sentences, min_sentences=min_sentences, max_sentences=max_sentences
+        )
         all_chunks.extend(paragraph_chunks)
     return all_chunks

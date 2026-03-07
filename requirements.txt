@@ -10,3 +10,9 @@ nltk==3.9.1
 textstat==0.7.10
 transformers==4.51.3
 onnxruntime==1.21.0
+torch==2.6.0
+
+sentencepiece
+
+
+python-multipart
