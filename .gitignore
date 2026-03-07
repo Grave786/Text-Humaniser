@@ -37,9 +37,3 @@ Thumbs.db
 # Logs
 *.log
 .env
-backend/pipeline/burstiness.py
-backend/pipeline/rewriter.py
-backend/pipeline/noise.py
-backend/pipeline/style_transformer.py
-backend/pipeline/perplexity.py
-backend/pipeline/detector.py
