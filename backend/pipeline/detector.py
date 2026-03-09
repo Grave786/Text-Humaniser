@@ -32,7 +32,7 @@ class Detector:
         expected_features = getattr(self.model, "n_features_in_", None)
         vector = np.array(feature_vector, dtype=float)
 
-        # Keep API stable even if loaded model expects a different feature space.
+        # Keep API stable even if loaded model expects a different feature space. 
         if isinstance(expected_features, (int, np.integer)) and expected_features > 0:
             if vector.shape[0] < expected_features:
                 vector = np.pad(vector, (0, expected_features - vector.shape[0]), mode="constant")

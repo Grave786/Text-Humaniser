@@ -13,7 +13,7 @@ except Exception:
     AutoModelForSeq2SeqLM = None
     AutoTokenizer = None
 
-
+# T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
 @dataclass
 class RewriteStage:
     model_name: str
@@ -23,13 +23,13 @@ class RewriteStage:
     load_error: Optional[str] = None
     loaded: bool = False
 
-
+# T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
 class TwoStageRewriter:
     def __init__(self, stage1_model: str, stage2_model: str) -> None:
         self.device = "cpu"
         self.stage1 = RewriteStage(model_name=stage1_model, prompt_mode="raw")
         self.stage2 = RewriteStage(model_name=stage2_model, prompt_mode="t5_humanize")
-
+# T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
     def _load_stage(self, stage: RewriteStage) -> None:
         if stage.loaded:
             return
@@ -52,14 +52,14 @@ class TwoStageRewriter:
             stage.load_error = str(exc)
             stage.model = None
             stage.tokenizer = None
-
+# T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
     def _build_prompt(self, stage: RewriteStage, text: str) -> str:
         if stage.prompt_mode == "t5_paraphrase":
             return f"paraphrase: {text}"
         if stage.prompt_mode == "t5_humanize":
             return f"rewrite this text in natural human phrasing: {text}"
         return text
-
+# T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
     def _run_stage(self, stage: RewriteStage, text: str, stage_strength: float) -> str:
         self._load_stage(stage)
         if stage.model is None or stage.tokenizer is None:
@@ -95,7 +95,7 @@ class TwoStageRewriter:
             return rewritten if rewritten else text
         except Exception:
             return text
-
+# T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
     def rewrite(self, segment: str) -> str:
         if not segment:
             return segment
@@ -117,7 +117,7 @@ class TwoStageRewriter:
         if final_count < int(len(original_words) * 0.8):
             return original_segment
         return final_text
-
+# Control repetition by removing immediate repeated words and short phrases, ensuring that the resulting text is more concise and avoids unnecessary redundancy while maintaining coherence.
     def status(self) -> dict:
         self._load_stage(self.stage1)
         self._load_stage(self.stage2)
@@ -140,7 +140,7 @@ class TwoStageRewriter:
             },
         }
 
-
+# Control repetition by removing immediate repeated words and short phrases, ensuring that the resulting text is more concise and avoids unnecessary redundancy while maintaining coherence.
 _STAGE1_MODEL_NAME = os.getenv(
     "REWRITER_STAGE1_MODEL",
     os.getenv("T5_MODEL_NAME", "tuner007/pegasus_paraphrase"),
@@ -152,14 +152,14 @@ _rewriter = TwoStageRewriter(
     stage2_model=_STAGE2_MODEL_NAME,
 )
 
-
+#  Control repetition by removing immediate repeated words and short phrases, ensuring that the resulting text is more concise and avoids unnecessary redundancy while maintaining coherence.
 def warmup_rewriter() -> None:
     _rewriter.status()
 
-
+# Control repetition by removing immediate repeated words and short phrases, ensuring that the resulting text is more concise and avoids unnecessary redundancy while maintaining coherence.
 def get_rewriter_status() -> dict:
     return _rewriter.status()
 
-
+# Control repetition by removing immediate repeated words and short phrases, ensuring that the resulting text is more concise and avoids unnecessary redundancy while maintaining coherence.
 def rewrite_segment(segment: str) -> str:
     return _rewriter.rewrite(segment)
