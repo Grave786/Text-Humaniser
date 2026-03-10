@@ -20,6 +20,12 @@
         <a class="hover:text-white" href="#workspace">Workspace</a>
         <a class="hover:text-white" href="#output">Output</a>
         <a class="hidden hover:text-white" href="admin.html" id="admin-link">Admin</a>
+        <button class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white" id="profile-btn" type="button" aria-label="Profile">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"></circle>
+            <path d="M4 20c1.6-3.5 5-6 8-6s6.4 2.5 8 6"></path>
+          </svg>
+        </button>
         <a class="hover:text-white" href="#" id="logout-btn">Logout</a>
       </nav>
     </div>
@@ -59,6 +65,31 @@
     </section>
   </main>
 
+  <div class="fixed inset-0 z-30 hidden items-center justify-center bg-slate-950/60 p-6" id="profile-modal">
+    <div class="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-semibold">Profile</h3>
+        <button id="close-profile" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-rose-600" type="button" aria-label="Close">X</button>
+      </div>
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs uppercase text-slate-500">Account</div>
+          <div class="mt-2 text-sm text-slate-700"><span class="font-semibold">Username:</span> <span id="profile-username"></span></div>
+          <div class="mt-1 text-sm text-slate-700"><span class="font-semibold">Email:</span> <span id="profile-email"></span></div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs uppercase text-slate-500">History</div>
+          <p class="mt-2 text-sm text-slate-600">View your last 50 humanizations.</p>
+          <button id="profile-history" class="mt-3 rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow" type="button">View History</button>
+        </div>
+      </div>
+      <div class="mt-6">
+        <h4 class="text-sm font-semibold text-slate-700">Recent Logs</h4>
+        <div id="profile-logs" class="mt-3 max-h-64 space-y-3 overflow-auto rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700"></div>
+      </div>
+    </div>
+  </div>
+
   <footer class="mt-10 bg-slate-950 text-slate-200">
     <div class="grid w-full gap-6 px-8 py-8 md:grid-cols-3">
       <div>
@@ -82,151 +113,8 @@
     </div>
     <div class="border-t border-white/10 py-4 text-center text-xs text-slate-400">Copyright 2026 Requin Solutions Pvt Ltd. All rights reserved.</div>
   </footer>
-
-  <script>
-    const API_BASE_DEFAULT = "http://127.0.0.1:8000";
-
-    const inputText = document.getElementById("input-text");
-    const outputText = document.getElementById("output");
-    const outputWrap = document.getElementById("output-wrap");
-    const metrics = document.getElementById("metrics");
-    const stages = document.getElementById("stages");
-    const humanizeBtn = document.getElementById("humanize-btn");
-    const copyBtn = document.getElementById("copy-btn");
-    const clearBtn = document.getElementById("clear-btn");
-    const logoutBtn = document.getElementById("logout-btn");
-    const adminLink = document.getElementById("admin-link");
-    const statusPill = document.getElementById("status-pill");
-    const statusLine = document.getElementById("status-line");
-
-    const sessionUser = localStorage.getItem("auth_user");
-    const sessionRole = localStorage.getItem("auth_role");
-    if (!sessionUser) {
-      window.location.href = "landing.html";
-    }
-    if (sessionRole === "admin") {
-      adminLink.style.display = "inline";
-    }
-
-    const apiUrl = (path) => {
-      const base = localStorage.getItem("api_base") || API_BASE_DEFAULT;
-      return `${base.replace(/\/$/, "")}${path}`;
-    };
-
-    const showMetrics = (items) => {
-      metrics.innerHTML = "";
-      items.forEach((item) => {
-        const el = document.createElement("span");
-        el.className = "rounded-full bg-slate-900 px-3 py-1 text-xs text-white";
-        el.textContent = item;
-        metrics.appendChild(el);
-      });
-    };
-
-    const showStages = (stageData) => {
-      stages.innerHTML = "";
-      if (!stageData) {
-        return;
-      }
-      Object.entries(stageData).forEach(([key, value]) => {
-        const section = document.createElement("div");
-        section.className = "rounded-2xl border border-slate-200 bg-white p-4";
-        const title = document.createElement("h3");
-        title.className = "text-sm font-semibold";
-        title.textContent = key.replace(/_/g, " ");
-        const score = document.createElement("span");
-        score.className = "mr-2 inline-flex rounded-full bg-slate-900 px-3 py-1 text-xs text-white";
-        score.textContent = `ai: ${value.ai_probability}`;
-        const count = document.createElement("span");
-        count.className = "inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700";
-        count.textContent = `${value.word_count} words`;
-        const text = document.createElement("div");
-        text.className = "mt-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm";
-        text.textContent = value.text;
-        section.appendChild(title);
-        section.appendChild(score);
-        section.appendChild(count);
-        section.appendChild(text);
-        stages.appendChild(section);
-      });
-    };
-
-    const setProcessing = (isProcessing) => {
-      if (isProcessing) {
-        statusPill.classList.remove("hidden");
-        statusLine.classList.remove("hidden");
-        humanizeBtn.disabled = true;
-      } else {
-        statusPill.classList.add("hidden");
-        statusLine.classList.add("hidden");
-        humanizeBtn.disabled = false;
-      }
-    };
-
-    const handleHumanize = async () => {
-      const text = inputText.value.trim();
-      if (!text) {
-        return;
-      }
-
-      setProcessing(true);
-
-      const payload = { text, username: sessionUser };
-      try {
-        const res = await fetch(apiUrl("/humanize"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        outputWrap.classList.remove("hidden");
-
-        outputText.textContent = data.humanized_text;
-        showStages(null);
-        showMetrics([
-          `ai: ${data.detector_ai_probability}`,
-          `words: ${data.humanized_text.split(/\s+/).filter(Boolean).length}`,
-        ]);
-        setProcessing(false);
-      } catch (err) {
-        outputWrap.classList.remove("hidden");
-        outputText.textContent = err.message || "Request failed";
-        showStages(null);
-        setProcessing(false);
-      }
-    };
-
-    const handleLogout = (event) => {
-      if (event) {
-        event.preventDefault();
-      }
-      localStorage.removeItem("auth_user");
-      localStorage.removeItem("auth_role");
-      window.location.href = "landing.html";
-    };
-
-    humanizeBtn.addEventListener("click", handleHumanize);
-    logoutBtn.addEventListener("click", handleLogout);
-    clearBtn.addEventListener("click", () => {
-      inputText.value = "";
-      outputText.textContent = "Run the pipeline to see results.";
-      outputWrap.classList.add("hidden");
-      showStages(null);
-      showMetrics([]);
-      setProcessing(false);
-    });
-    copyBtn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(outputText.textContent);
-      } catch {
-        // ignore
-      }
-    });
-  </script>
+  <script src="js/config.js"></script>
+  <script src="js/humanizer.js"></script>
 </body>
 </html>
+

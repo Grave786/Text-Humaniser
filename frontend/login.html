@@ -44,65 +44,8 @@
   <footer class="mt-6 bg-slate-950 text-slate-200">
     <div class="border-t border-white/10 py-4 text-center text-xs text-slate-400">Copyscape Humanizer · Secure login</div>
   </footer>
-
-  <script>
-    const API_BASE_DEFAULT = "http://127.0.0.1:8000";
-
-    const usernameInput = document.getElementById("username");
-    const passwordInput = document.getElementById("password");
-    const errorEl = document.getElementById("error");
-    const loginBtn = document.getElementById("login");
-
-    const apiUrl = (path) => {
-      const base = localStorage.getItem("api_base") || API_BASE_DEFAULT;
-      return `${base.replace(/\/$/, "")}${path}`;
-    };
-
-    const login = async () => {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-      if (!username || !password) {
-        errorEl.textContent = "Enter username and password.";
-        return;
-      }
-
-      loginBtn.disabled = true;
-      errorEl.textContent = "";
-      try {
-        const res = await fetch(apiUrl("/auth/login"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
-        });
-        const data = await res.json();
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        localStorage.setItem("auth_user", data.username);
-        localStorage.setItem("auth_role", data.role || "user");
-        const target = data.role === "admin" ? "admin.html" : "humanizer.html";
-
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage(
-            { type: "login-success", username: data.username, role: data.role || "user" },
-            "*"
-          );
-          try {
-            window.parent.location.href = target;
-          } catch {
-            // Parent navigation blocked; fallback to message only.
-          }
-        } else {
-          window.location.href = target;
-        }
-      } catch (err) {
-        errorEl.textContent = err.message || "Login failed.";
-      } finally {
-        loginBtn.disabled = false;
-      }
-    };
-
-    loginBtn.addEventListener("click", login);
-  </script>
+  <script src="js/config.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>
+

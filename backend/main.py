@@ -398,6 +398,32 @@ def login(payload: AuthLoginRequest) -> dict:
         "role": user.get("role"),
     }
 
+@app.get("/users/profile")
+def user_profile(username: str) -> dict:
+    if not username:
+        return {"error": "username is required."}
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+    user = db.users.find_one({"username": username})
+    if not user:
+        return {"error": "User not found."}
+    return _sanitize_user(user)
+
+@app.get("/users/scans")
+def user_scans(username: str | None = None) -> dict:
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    query = {"username": username} if username else {}
+    scans = list(db.scans.find(query).sort("created_at", -1).limit(50))
+    return {"items": [_sanitize_scan(s) for s in scans]}
+
 
 @app.get("/admin/users")
 def list_users() -> dict:
