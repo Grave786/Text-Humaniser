@@ -1,9 +1,19 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 
+from backend.db.mongo import connect as mongo_connect
+from backend.db.mongo import disconnect as mongo_disconnect
+from backend.db.mongo import get_db as get_mongo_db
+from backend.db.mongo import get_status as get_mongo_status
+from backend.db.mongo import now_utc as mongo_now_utc
+from pymongo.errors import DuplicateKeyError, PyMongoError
 from backend.pipeline.detector import Detector
-from backend.pipeline.features import extract_features
+from backend.pipeline.features import extract_features, warmup_inference_stack
 from backend.pipeline.perplexity import optimize_perplexity
 from backend.pipeline.rewriter import (
     get_rewriter_status,
@@ -24,13 +34,33 @@ from backend.pipeline.refiner import (
 )
 
 # Main FastAPI application with endpoints for health check, text segmentation, rewriter health, rewrite testing, and humanization. The application uses a Detector instance for AI detection and a T5Rewriter instance for text rewriting, with a warmup function to load the model during startup and a status function to check if the model is loaded and ready.
+load_dotenv()
 app = FastAPI(title="AI Humanizer API", version="0.1.0")
+cors_env = os.getenv("CORS_ORIGINS", "*").strip()
+if cors_env == "*":
+    allow_origins = ["*"]
+else:
+    allow_origins = [origin.strip() for origin in cors_env.split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 detector = Detector(model_path="models/xgb_model_.pkl")
 
 # Load the T5 model during API startup to avoid first-request delay.
 @app.on_event("startup")
 def startup_event() -> None:
     warmup_rewriter()
+    warmup_inference_stack()
+    mongo_connect()
+
+
+@app.on_event("shutdown")
+def shutdown_event() -> None:
+    mongo_disconnect()
 
 # Data models for API requests, including HumanizeRequest for the /humanize endpoint, SegmentRequest for the /segment endpoint, and RewriteTestRequest for the /rewrite/test endpoint. These models define the expected input structure for each endpoint and include validation for required fields and constraints on sentence counts.
 class HumanizeRequest(BaseModel):
@@ -51,6 +81,12 @@ class RewriteTestRequest(BaseModel):
 
 class HumanizeDebugRequest(BaseModel):
     text: str
+
+
+class UserCreateRequest(BaseModel):
+    username: str
+    email: str | None = None
+    role: str = "user"
 
 
 def _run_humanize_pipeline(original: str) -> dict:
@@ -105,7 +141,11 @@ def _run_humanize_pipeline(original: str) -> dict:
 # Main FastAPI application with endpoints for health check, text segmentation, rewriter health, rewrite testing, and humanization. The application uses a Detector instance for AI detection and a T5Rewriter instance for text rewriting, with a warmup function to load the model during startup and a status function to check if the model is loaded and ready.
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "rewriter": get_rewriter_status()}
+    return {
+        "status": "ok",
+        "rewriter": get_rewriter_status(),
+        "mongo": get_mongo_status(),
+    }
 
 # Root endpoint with a welcome message and a redirect to the Swagger UI documentation for easy access to API documentation and testing.
 @app.get("/")
@@ -192,6 +232,21 @@ def humanize(payload: HumanizeRequest) -> dict:
     feature_vector = extract_features(final_text)
     ai_score = detector.predict_probability(feature_vector)
 
+    db = get_mongo_db()
+    if db is not None:
+        try:
+            db.scans.insert_one(
+                {
+                    "created_at": mongo_now_utc(),
+                    "source": "humanize",
+                    "original_text": original,
+                    "humanized_text": final_text,
+                    "detector_ai_probability": ai_score,
+                }
+            )
+        except Exception:
+            pass
+
     return {
         "original_text": original,
         "humanized_text": final_text,
@@ -232,3 +287,36 @@ def humanize_debug(payload: HumanizeDebugRequest) -> dict:
             "final": _stage_info(stages["final"]),
         }
     }
+
+
+@app.post("/users")
+def create_user(payload: UserCreateRequest) -> dict:
+    username = payload.username.strip()
+    if not username:
+        return {"error": "username is required."}
+    role = payload.role.strip().lower()
+    if role not in {"user", "admin"}:
+        return {"error": "role must be 'user' or 'admin'."}
+
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    doc = {
+        "created_at": mongo_now_utc(),
+        "username": username,
+        "email": payload.email.strip() if payload.email else None,
+        "role": role,
+    }
+    try:
+        result = db.users.insert_one(doc)
+    except DuplicateKeyError:
+        return {"error": "Username already exists."}
+    except PyMongoError as exc:
+        return {"error": f"Failed to store user. Reason: {exc}"}
+    except Exception as exc:
+        return {"error": f"Failed to store user. Reason: {exc}"}
+
+    return {"id": str(result.inserted_id), "username": username, "role": role}

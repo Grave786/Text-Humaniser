@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Humanizer Console</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap");
+
+    :root {
+      --ink: #1c1c1a;
+      --ink-soft: #3e3e39;
+      --paper: #f6f2ea;
+      --accent: #c86b2e;
+      --accent-dark: #8f4820;
+      --mist: #efe7d7;
+      --line: #d8cdb8;
+      --chip: #1f1f1f;
+      --chip-text: #f9f7f1;
+      --good: #0f7a55;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #fff2d9 0%, #f8efe0 40%, #f3e6d3 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      display: grid;
+      gap: 24px;
+      padding: 32px 18px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      backdrop-filter: blur(6px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: conic-gradient(from 140deg, #f6a45a, #f0c37c, #f6a45a);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: #3c2313;
+      box-shadow: 0 10px 25px rgba(160, 87, 39, 0.25);
+    }
+
+    .brand h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .brand span {
+      font-family: "Spectral", serif;
+      font-style: italic;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--mist);
+      border: 1px solid var(--line);
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    @media (min-width: 980px) {
+      .grid {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 12px 35px rgba(76, 55, 28, 0.08);
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      padding: 16px;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      resize: vertical;
+      background: #fffdf8;
+      font-family: "Spectral", serif;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: #fffdf8;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      background: var(--accent);
+      color: #fff7f0;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 18px rgba(200, 107, 46, 0.25);
+    }
+
+    button.secondary {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 20px rgba(200, 107, 46, 0.2);
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: #fff7ea;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 0.85rem;
+    }
+
+    .output {
+      min-height: 200px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      padding: 16px;
+      background: #fffdf8;
+      font-family: "Spectral", serif;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      background: var(--chip);
+      color: var(--chip-text);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+    }
+
+    .stage {
+      border-top: 1px dashed var(--line);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .stage h3 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+    }
+
+    .stage .chip {
+      background: #2d2d2d;
+    }
+
+    .success {
+      color: var(--good);
+      font-weight: 600;
+    }
+
+    .error {
+      color: #8f2b1f;
+      font-weight: 600;
+    }
+
+    .footer {
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+      text-align: center;
+      padding: 12px 0 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">AH</div>
+        <div>
+          <h1>AI Humanizer Console</h1>
+          <span>Rewrite text with the backend pipeline</span>
+        </div>
+      </div>
+      <div class="status">
+        <span class="pill" id="status-pill">Status: idle</span>
+        <button class="secondary" id="health-btn" type="button">Check API</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Input</h2>
+        <label for="api-base">API base URL</label>
+        <input id="api-base" type="text" value="http://127.0.0.1:8000" />
+
+        <div class="controls">
+          <label for="input-text">Paste your text</label>
+          <textarea id="input-text" placeholder="Drop raw text here..."></textarea>
+
+          <div class="row">
+            <label class="toggle">
+              <input id="debug-toggle" type="checkbox" />
+              Show pipeline stages
+            </label>
+            <label class="toggle">
+              <input id="segment-toggle" type="checkbox" />
+              Show segments
+            </label>
+          </div>
+
+          <div class="row">
+            <button id="humanize-btn" type="button">Humanize</button>
+            <button id="clear-btn" class="secondary" type="button">Clear</button>
+            <button id="copy-btn" class="secondary" type="button">Copy output</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Output</h2>
+        <div class="output" id="output-text">Run the pipeline to see results.</div>
+        <div class="metrics" id="metrics"></div>
+        <div id="stages"></div>
+      </section>
+    </div>
+
+    <div class="footer">Designed for local dev. Start your API with `uvicorn backend.main:app --reload`.</div>
+  </div>
+
+  <script>
+    const apiBaseInput = document.getElementById("api-base");
+    const inputText = document.getElementById("input-text");
+    const outputText = document.getElementById("output-text");
+    const metrics = document.getElementById("metrics");
+    const stages = document.getElementById("stages");
+    const statusPill = document.getElementById("status-pill");
+    const humanizeBtn = document.getElementById("humanize-btn");
+    const copyBtn = document.getElementById("copy-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const healthBtn = document.getElementById("health-btn");
+    const debugToggle = document.getElementById("debug-toggle");
+    const segmentToggle = document.getElementById("segment-toggle");
+
+    const setStatus = (text, ok = true) => {
+      statusPill.textContent = `Status: ${text}`;
+      statusPill.className = "pill" + (ok ? " success" : " error");
+    };
+
+    const apiUrl = (path) => {
+      const base = apiBaseInput.value.trim().replace(/\/$/, "");
+      return `${base}${path}`;
+    };
+
+    const showMetrics = (items) => {
+      metrics.innerHTML = "";
+      items.forEach((item) => {
+        const el = document.createElement("span");
+        el.className = "chip";
+        el.textContent = item;
+        metrics.appendChild(el);
+      });
+    };
+
+    const showStages = (stageData) => {
+      stages.innerHTML = "";
+      if (!stageData) {
+        return;
+      }
+      Object.entries(stageData).forEach(([key, value]) => {
+        const section = document.createElement("div");
+        section.className = "stage";
+        const title = document.createElement("h3");
+        title.textContent = key.replace(/_/g, " ");
+        const score = document.createElement("span");
+        score.className = "chip";
+        score.textContent = `ai: ${value.ai_probability}`;
+        const count = document.createElement("span");
+        count.className = "chip";
+        count.textContent = `${value.word_count} words`;
+        const text = document.createElement("div");
+        text.className = "output";
+        text.textContent = value.text;
+        section.appendChild(title);
+        section.appendChild(score);
+        section.appendChild(count);
+        section.appendChild(text);
+        stages.appendChild(section);
+      });
+    };
+
+    const handleHumanize = async () => {
+      const text = inputText.value.trim();
+      if (!text) {
+        setStatus("enter text", false);
+        return;
+      }
+
+      humanizeBtn.disabled = true;
+      setStatus("running");
+
+      const payload = { text };
+      const useDebug = debugToggle.checked;
+      const useSegments = segmentToggle.checked;
+
+      try {
+        if (useSegments) {
+          const segmentRes = await fetch(apiUrl("/segment"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+          const segmentData = await segmentRes.json();
+          if (segmentData.error) {
+            throw new Error(segmentData.error);
+          }
+          showMetrics([
+            `paragraphs: ${segmentData.paragraph_count}`,
+            `sentences: ${segmentData.sentence_count}`,
+            `chunks: ${segmentData.chunk_count}`,
+          ]);
+        }
+
+        const res = await fetch(apiUrl(useDebug ? "/humanize/debug" : "/humanize"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        if (useDebug) {
+          outputText.textContent = data.stages.final.text;
+          showStages(data.stages);
+          showMetrics([
+            `ai: ${data.stages.final.ai_probability}`,
+            `words: ${data.stages.final.word_count}`,
+          ]);
+        } else {
+          outputText.textContent = data.humanized_text;
+          showStages(null);
+          showMetrics([
+            `ai: ${data.detector_ai_probability}`,
+            `words: ${data.humanized_text.split(/\s+/).filter(Boolean).length}`,
+          ]);
+        }
+
+        setStatus("done", true);
+      } catch (err) {
+        setStatus("error", false);
+        outputText.textContent = err.message || "Request failed";
+        showStages(null);
+      } finally {
+        humanizeBtn.disabled = false;
+      }
+    };
+
+    const handleHealth = async () => {
+      try {
+        const res = await fetch(apiUrl("/health"));
+        const data = await res.json();
+        const rewriter = data.rewriter?.loaded ? "rewriter ready" : "rewriter not ready";
+        setStatus(rewriter, !!data.rewriter?.loaded);
+      } catch (err) {
+        setStatus("api offline", false);
+      }
+    };
+
+    humanizeBtn.addEventListener("click", handleHumanize);
+    healthBtn.addEventListener("click", handleHealth);
+    clearBtn.addEventListener("click", () => {
+      inputText.value = "";
+      outputText.textContent = "Run the pipeline to see results.";
+      showStages(null);
+      showMetrics([]);
+      setStatus("idle", true);
+    });
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(outputText.textContent);
+        setStatus("copied", true);
+      } catch {
+        setStatus("copy failed", false);
+      }
+    });
+  </script>
+</body>
+</html>
