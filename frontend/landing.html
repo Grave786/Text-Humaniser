@@ -5,20 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Copyscape Humanizer</title>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
 
     :root {
-      --ink: #12121a;
-      --ink-soft: #4a4a57;
-      --paper: #f6f4ef;
-      --accent: #1e64d2;
-      --accent-dark: #15489a;
-      --mist: #e9edf6;
-      --line: #d0d7e6;
-      --chip: #0f1627;
-      --chip-text: #f2f6ff;
-      --success: #0f7a55;
-      --warn: #b04c2f;
+      --ink: #10121a;
+      --ink-soft: #3f4252;
+      --accent: #ff7a59;
+      --accent-2: #6c63ff;
+      --accent-3: #22c55e;
+      --surface: rgba(255, 255, 255, 0.84);
+      --line: rgba(15, 23, 42, 0.1);
     }
 
     * {
@@ -27,18 +23,22 @@
 
     body {
       margin: 0;
-      font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+      font-family: "Space Grotesk", system-ui, sans-serif;
       color: var(--ink);
-      background: radial-gradient(circle at top right, #eef1ff 0%, #f6f4ef 45%, #f8efe0 100%);
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 122, 89, 0.18), transparent 50%),
+        radial-gradient(circle at 90% 10%, rgba(108, 99, 255, 0.2), transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.18), transparent 50%),
+        #f7f4ff;
       min-height: 100vh;
     }
 
     .page {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 24px 18px 46px;
+      padding: 24px 18px 60px;
       display: grid;
-      gap: 22px;
+      gap: 26px;
     }
 
     header {
@@ -50,10 +50,11 @@
       justify-content: space-between;
       gap: 16px;
       padding: 14px 18px;
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid var(--line);
       border-radius: 18px;
-      backdrop-filter: blur(8px);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 40px rgba(18, 18, 30, 0.08);
     }
 
     .brand {
@@ -66,239 +67,188 @@
       width: 48px;
       height: 48px;
       border-radius: 14px;
-      background: conic-gradient(from 160deg, #1f5bb0, #62a3ff, #1f5bb0);
+      background: linear-gradient(135deg, #ff7a59, #6c63ff);
       display: grid;
       place-items: center;
+      color: #fff;
       font-weight: 700;
-      color: #eef4ff;
-      box-shadow: 0 10px 25px rgba(44, 84, 143, 0.25);
+      box-shadow: 0 12px 26px rgba(108, 99, 255, 0.3);
     }
 
     .brand h1 {
-      font-size: 1.35rem;
       margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: 0.3px;
     }
 
-    .pill {
-      padding: 6px 12px;
+    .chip {
+      padding: 6px 14px;
       border-radius: 999px;
-      background: var(--mist);
-      border: 1px solid var(--line);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
+      background: rgba(16, 18, 26, 0.08);
       color: var(--ink-soft);
     }
 
-    .landing {
-      display: grid;
-      gap: 18px;
-      padding: 34px;
+    .hero {
+      padding: 36px;
       border-radius: 28px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(236, 244, 255, 0.85));
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.95), rgba(246, 240, 255, 0.9));
       border: 1px solid var(--line);
-      box-shadow: 0 24px 55px rgba(20, 55, 110, 0.14);
+      box-shadow: 0 24px 60px rgba(18, 18, 30, 0.12);
+      display: grid;
+      gap: 20px;
       position: relative;
       overflow: hidden;
     }
 
-    .landing::after {
+    .hero::after {
       content: "";
       position: absolute;
-      right: -140px;
+      right: -120px;
       top: -140px;
       width: 340px;
       height: 340px;
-      background: radial-gradient(circle, rgba(66, 120, 204, 0.28), transparent 70%);
+      background: radial-gradient(circle, rgba(108, 99, 255, 0.35), transparent 70%);
       pointer-events: none;
     }
 
-    .landing h2 {
-      font-size: 2.2rem;
+    .hero h2 {
+      font-family: "Playfair Display", serif;
+      font-size: 2.4rem;
       margin: 0;
-      max-width: 640px;
+      max-width: 700px;
     }
 
-    .landing p {
+    .hero p {
       margin: 0;
       color: var(--ink-soft);
       font-size: 1.05rem;
-      max-width: 580px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      background: #0f1c35;
-      color: #eaf0ff;
-      font-size: 0.82rem;
-      letter-spacing: 0.3px;
-      width: fit-content;
-    }
-
-    .features {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .feature-card {
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid var(--line);
-      font-size: 0.92rem;
-      color: var(--ink-soft);
+      max-width: 560px;
     }
 
     .cta-row {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      align-items: center;
-    }
-
-    .section {
-      padding: 28px;
-      border-radius: 24px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.82);
-      box-shadow: 0 18px 40px rgba(20, 55, 110, 0.08);
-      display: grid;
-      gap: 16px;
-    }
-
-    .section h3 {
-      margin: 0;
-      font-size: 1.35rem;
-    }
-
-    .section p {
-      margin: 0;
-      color: var(--ink-soft);
-    }
-
-    .steps {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .step-card {
-      padding: 16px;
-      border-radius: 18px;
-      background: #f6f7fb;
-      border: 1px solid var(--line);
-      display: grid;
-      gap: 6px;
-    }
-
-    .step-card span {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--accent-dark);
-      font-weight: 600;
-    }
-
-    .metrics-grid {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-
-    .metric {
-      padding: 16px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: #ffffff;
-      text-align: center;
-    }
-
-    .metric strong {
-      display: block;
-      font-size: 1.4rem;
-      color: var(--accent-dark);
-    }
-
-    .footer {
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.75);
-      display: grid;
-      gap: 8px;
-      text-align: center;
     }
 
     button {
       border: none;
       border-radius: 999px;
-      padding: 12px 20px;
-      background: var(--accent);
-      color: #fff7f0;
+      padding: 12px 22px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-      box-shadow: 0 10px 20px rgba(30, 100, 210, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    button.secondary {
-      background: transparent;
-      border: 1px solid var(--line);
+    .primary {
+      background: linear-gradient(135deg, #ff7a59, #ffb347);
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(255, 122, 89, 0.35);
+    }
+
+    .secondary {
+      background: #fff;
       color: var(--ink);
-      box-shadow: none;
+      border: 1px solid var(--line);
     }
 
     button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 14px 24px rgba(30, 100, 210, 0.22);
+      box-shadow: 0 14px 26px rgba(108, 99, 255, 0.2);
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .card {
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgba(18, 18, 30, 0.08);
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .section {
+      padding: 28px;
+      border-radius: 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 40px rgba(18, 18, 30, 0.08);
+      display: grid;
+      gap: 14px;
+    }
+
+    .section h3 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .stats {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.5rem;
+      color: var(--accent-2);
+    }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      color: var(--ink-soft);
     }
 
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(13, 22, 40, 0.5);
+      background: rgba(10, 12, 22, 0.55);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 18px;
       z-index: 30;
     }
 
     .modal-card {
       width: min(560px, 100%);
-      background: #ffffff;
       border-radius: 22px;
-      padding: 0;
-      border: 1px solid var(--line);
-      box-shadow: 0 26px 50px rgba(16, 30, 60, 0.28);
       overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 28px 60px rgba(12, 12, 24, 0.25);
     }
 
     .modal-header {
-      padding: 14px 18px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: #f4f1ff;
       border-bottom: 1px solid var(--line);
-      background: #f5f7fc;
-    }
-
-    .modal-header h3 {
-      margin: 0;
-      font-size: 1rem;
     }
 
     .hidden {
       display: none;
-    }
-
-    .footer small {
-      color: var(--ink-soft);
-      font-size: 0.82rem;
     }
 
     iframe {
@@ -315,95 +265,96 @@
         <div class="brand-mark">CS</div>
         <div>
           <h1>Copyscape Humanizer</h1>
-          <div class="pill" id="status-pill">Status: idle</div>
+          <div class="chip">Private AI refinement</div>
         </div>
       </div>
-      <button class="secondary" id="status-btn" type="button">Check API</button>
+      <div class="chip">Admin-managed access</div>
     </header>
 
-    <section class="landing">
-      <span class="badge">Secure workspace</span>
-      <h2>Humanize AI text with controlled precision.</h2>
+    <section class="hero">
+      <span class="chip">Secure workspace</span>
+      <h2>Transform AI drafts into human-first copy with confidence.</h2>
       <p>
-        Copyscape Humanizer refines drafts while preserving meaning. Use the pipeline to
-        reshape tone, cadence, and variability, then export the final copy in seconds.
+        Copyscape Humanizer reshapes tone, cadence, and originality while keeping your message intact.
+        Every rewrite stays inside your own stack with admin-controlled access.
       </p>
-      <div class="features">
-        <div class="feature-card">Pipeline stages monitored in real time.</div>
-        <div class="feature-card">Drafts stored securely in your database.</div>
-        <div class="feature-card">Admin-only user creation to keep access tight.</div>
-      </div>
       <div class="cta-row">
-        <button id="open-login" type="button">Login to Humanizer</button>
-        <button class="secondary" id="open-humanizer" type="button">Open Humanizer</button>
+        <button class="primary" id="open-login" type="button">Login to Humanizer</button>
+        <button class="secondary" id="open-humanizer" type="button">Go to Workspace</button>
       </div>
     </section>
 
     <section class="section">
-      <h3>Why teams choose Copyscape Humanizer</h3>
-      <p>Built for editorial teams that need reliable rewrites with traceable pipeline stages and safe storage.</p>
-      <div class="metrics-grid">
-        <div class="metric">
-          <strong>11</strong>
-          Pipeline stages
+      <h3>What you get</h3>
+      <div class="grid">
+        <div class="card">
+          <strong>Real-time pipeline</strong>
+          Track stage-by-stage rewrites with optional debugging views.
         </div>
-        <div class="metric">
-          <strong>100%</strong>
-          Local control
+        <div class="card">
+          <strong>Secure storage</strong>
+          Every scan is logged to your MongoDB for audit and review.
         </div>
-        <div class="metric">
-          <strong>0</strong>
-          User self-signups
+        <div class="card">
+          <strong>Admin-only accounts</strong>
+          No self-signups; access is curated by administrators.
         </div>
-        <div class="metric">
-          <strong>24/7</strong>
-          API uptime monitoring
+        <div class="card">
+          <strong>Consistent output</strong>
+          Control tone and burstiness with stable, repeatable results.
         </div>
       </div>
     </section>
 
     <section class="section">
       <h3>How it works</h3>
-      <div class="steps">
-        <div class="step-card">
-          <span>Step 1</span>
-          <strong>Login securely</strong>
-          <p>Admin creates accounts, users authenticate with password.</p>
+      <div class="grid">
+        <div class="card">
+          <strong>1. Authenticate</strong>
+          Use your admin-created credentials to access the workspace.
         </div>
-        <div class="step-card">
-          <span>Step 2</span>
-          <strong>Paste your draft</strong>
-          <p>Segment, rewrite, and add human-like variability.</p>
+        <div class="card">
+          <strong>2. Paste your draft</strong>
+          Input text, optionally reveal pipeline stages.
         </div>
-        <div class="step-card">
-          <span>Step 3</span>
-          <strong>Review output</strong>
-          <p>Inspect AI probability and pipeline stages if needed.</p>
-        </div>
-        <div class="step-card">
-          <span>Step 4</span>
-          <strong>Export instantly</strong>
-          <p>Copy the final draft and move to publishing.</p>
+        <div class="card">
+          <strong>3. Review output</strong>
+          Copy the final humanized response in seconds.
         </div>
       </div>
     </section>
 
     <section class="section">
-      <h3>Security and governance</h3>
-      <p>Accounts are created only by admin, preventing unauthorized access. All scans are stored in your MongoDB instance with full control.</p>
+      <h3>Performance snapshot</h3>
+      <div class="stats">
+        <div class="stat">
+          <strong>11</strong>
+          Processing stages
+        </div>
+        <div class="stat">
+          <strong>100%</strong>
+          Private pipeline
+        </div>
+        <div class="stat">
+          <strong>0</strong>
+          User self-signups
+        </div>
+        <div class="stat">
+          <strong>24/7</strong>
+          Availability focus
+        </div>
+      </div>
     </section>
 
-    <footer class="footer">
-      <strong>Copyscape Humanizer</strong>
-      <small>Designed for local dev. Start your API with `uvicorn backend.main:app --reload`.</small>
-      <small>Need access? Contact your administrator.</small>
+    <footer>
+      Copyscape Humanizer · Built for internal teams. Contact admin for access.
     </footer>
   </div>
 
   <div class="modal hidden" id="login-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>User Login</h3>
+        <strong>User Login</strong>
         <button class="secondary" id="close-login" type="button">Close</button>
       </div>
       <iframe src="login.html" title="Login"></iframe>
@@ -411,19 +362,10 @@
   </div>
 
   <script>
-    const API_BASE_DEFAULT = "http://127.0.0.1:8000";
-
     const loginModal = document.getElementById("login-modal");
     const openLoginBtn = document.getElementById("open-login");
     const closeLoginBtn = document.getElementById("close-login");
     const openHumanizerBtn = document.getElementById("open-humanizer");
-    const statusBtn = document.getElementById("status-btn");
-    const statusPill = document.getElementById("status-pill");
-
-    const setStatus = (text, ok = true) => {
-      statusPill.textContent = `Status: ${text}`;
-      statusPill.style.color = ok ? "#0f7a55" : "#b04c2f";
-    };
 
     const openLogin = () => {
       loginModal.classList.remove("hidden");
@@ -442,18 +384,6 @@
       window.location.href = "humanizer.html";
     };
 
-    const handleHealth = async () => {
-      const base = localStorage.getItem("api_base") || API_BASE_DEFAULT;
-      try {
-        const res = await fetch(`${base.replace(/\/$/, "")}/health`);
-        const data = await res.json();
-        const ok = !!data.mongo?.connected;
-        setStatus(ok ? "mongo connected" : "api online", true);
-      } catch {
-        setStatus("api offline", false);
-      }
-    };
-
     window.addEventListener("message", (event) => {
       if (!event.data || event.data.type !== "login-success") {
         return;
@@ -467,7 +397,6 @@
     openLoginBtn.addEventListener("click", openLogin);
     closeLoginBtn.addEventListener("click", closeLogin);
     openHumanizerBtn.addEventListener("click", openHumanizer);
-    statusBtn.addEventListener("click", handleHealth);
   </script>
 </body>
 </html>

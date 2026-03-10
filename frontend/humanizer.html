@@ -5,15 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Humanizer Workspace</title>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
 
     :root {
-      --ink: #12121a;
-      --ink-soft: #4a4a57;
-      --paper: #f6f4ef;
-      --accent: #1e64d2;
-      --mist: #e9edf6;
-      --line: #d0d7e6;
+      --ink: #10121a;
+      --ink-soft: #444756;
+      --accent: #6c63ff;
+      --accent-2: #ff7a59;
+      --accent-3: #22c55e;
+      --line: rgba(15, 23, 42, 0.12);
+      --surface: rgba(255, 255, 255, 0.86);
       --chip: #0f1627;
       --chip-text: #f2f6ff;
       --good: #0f7a55;
@@ -26,9 +27,13 @@
 
     body {
       margin: 0;
-      font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+      font-family: "Space Grotesk", system-ui, sans-serif;
       color: var(--ink);
-      background: radial-gradient(circle at top right, #eef1ff 0%, #f6f4ef 45%, #f8efe0 100%);
+      background:
+        radial-gradient(circle at 12% 15%, rgba(108, 99, 255, 0.16), transparent 45%),
+        radial-gradient(circle at 90% 10%, rgba(255, 122, 89, 0.16), transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.16), transparent 50%),
+        #f6f4ff;
       min-height: 100vh;
     }
 
@@ -47,10 +52,11 @@
       justify-content: space-between;
       gap: 16px;
       padding: 14px 18px;
-      background: rgba(255, 255, 255, 0.7);
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 20px;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 20px 40px rgba(18, 18, 30, 0.08);
     }
 
     .brand {
@@ -63,18 +69,17 @@
       width: 48px;
       height: 48px;
       border-radius: 14px;
-      background: conic-gradient(from 160deg, #1f5bb0, #62a3ff, #1f5bb0);
+      background: linear-gradient(135deg, #6c63ff, #22c55e);
       display: grid;
       place-items: center;
       font-weight: 700;
-      color: #eef4ff;
-      box-shadow: 0 10px 25px rgba(44, 84, 143, 0.25);
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(108, 99, 255, 0.28);
     }
 
     .brand h1 {
       font-size: 1.4rem;
       margin: 0;
-      letter-spacing: 0.5px;
     }
 
     .status {
@@ -87,8 +92,8 @@
     .pill {
       padding: 6px 12px;
       border-radius: 999px;
-      background: var(--mist);
-      border: 1px solid var(--line);
+      background: rgba(16, 18, 26, 0.08);
+      color: var(--ink-soft);
     }
 
     .grid {
@@ -103,11 +108,11 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.75);
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 24px;
       padding: 22px;
-      box-shadow: 0 12px 35px rgba(76, 55, 28, 0.08);
+      box-shadow: 0 14px 35px rgba(18, 18, 30, 0.08);
     }
 
     .panel h2 {
@@ -130,7 +135,7 @@
       line-height: 1.5;
       resize: vertical;
       background: #fffdf8;
-      font-family: "Spectral", serif;
+      font-family: "Playfair Display", serif;
     }
 
     .controls {
@@ -150,12 +155,12 @@
       border: none;
       border-radius: 999px;
       padding: 10px 18px;
-      background: var(--accent);
-      color: #fff7f0;
+      background: linear-gradient(135deg, #6c63ff, #ff7a59);
+      color: #fff;
       font-weight: 600;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 8px 18px rgba(30, 100, 210, 0.25);
+      box-shadow: 0 10px 22px rgba(108, 99, 255, 0.26);
     }
 
     button.secondary {
@@ -174,7 +179,7 @@
 
     button:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 12px 20px rgba(30, 100, 210, 0.2);
+      box-shadow: 0 14px 24px rgba(108, 99, 255, 0.22);
     }
 
     .toggle {
@@ -182,7 +187,7 @@
       align-items: center;
       gap: 8px;
       padding: 6px 12px;
-      background: #fff7ea;
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 999px;
       border: 1px solid var(--line);
       font-size: 0.85rem;
@@ -194,7 +199,7 @@
       border: 1px solid var(--line);
       padding: 16px;
       background: #fffdf8;
-      font-family: "Spectral", serif;
+      font-family: "Playfair Display", serif;
       line-height: 1.55;
       white-space: pre-wrap;
     }
@@ -254,12 +259,11 @@
         <div class="brand-mark">CS</div>
         <div>
           <h1>Humanizer Workspace</h1>
-          <span>Rewrite text with the backend pipeline</span>
+          <span>Refine text with live AI stages</span>
         </div>
       </div>
       <div class="status">
         <span class="pill" id="status-pill">Status: idle</span>
-        <button class="secondary" id="health-btn" type="button">Check API</button>
         <button class="secondary" id="logout-btn" type="button">Logout</button>
       </div>
     </header>
@@ -298,7 +302,7 @@
       </section>
     </div>
 
-    <div class="footer">Designed for local dev. Start your API with `uvicorn backend.main:app --reload`.</div>
+    <div class="footer">Copyscape Humanizer · Private workspace</div>
   </div>
 
   <script>
@@ -312,7 +316,6 @@
     const humanizeBtn = document.getElementById("humanize-btn");
     const copyBtn = document.getElementById("copy-btn");
     const clearBtn = document.getElementById("clear-btn");
-    const healthBtn = document.getElementById("health-btn");
     const debugToggle = document.getElementById("debug-toggle");
     const segmentToggle = document.getElementById("segment-toggle");
     const logoutBtn = document.getElementById("logout-btn");
@@ -438,17 +441,6 @@
       }
     };
 
-    const handleHealth = async () => {
-      try {
-        const res = await fetch(apiUrl("/health"));
-        const data = await res.json();
-        const rewriter = data.rewriter?.loaded ? "rewriter ready" : "rewriter not ready";
-        setStatus(rewriter, !!data.rewriter?.loaded);
-      } catch (err) {
-        setStatus("api offline", false);
-      }
-    };
-
     const handleLogout = () => {
       localStorage.removeItem("auth_user");
       localStorage.removeItem("auth_role");
@@ -456,7 +448,6 @@
     };
 
     humanizeBtn.addEventListener("click", handleHumanize);
-    healthBtn.addEventListener("click", handleHealth);
     logoutBtn.addEventListener("click", handleLogout);
     clearBtn.addEventListener("click", () => {
       inputText.value = "";

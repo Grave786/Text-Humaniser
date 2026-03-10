@@ -8,10 +8,11 @@
     @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
     :root {
-      --ink: #12121a;
-      --ink-soft: #4a4a57;
-      --accent: #1e64d2;
-      --line: #d0d7e6;
+      --ink: #10121a;
+      --ink-soft: #444756;
+      --accent: #6c63ff;
+      --accent-2: #ff7a59;
+      --line: rgba(15, 23, 42, 0.12);
       --error: #b04c2f;
     }
 
@@ -21,15 +22,30 @@
 
     body {
       margin: 0;
-      font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+      font-family: "Space Grotesk", system-ui, sans-serif;
       background: #ffffff;
       color: var(--ink);
     }
 
     .card {
-      padding: 18px 20px 22px;
+      padding: 22px 22px 24px;
       display: grid;
       gap: 12px;
+    }
+
+    .header {
+      display: grid;
+      gap: 4px;
+    }
+
+    .header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .header span {
+      color: var(--ink-soft);
+      font-size: 0.85rem;
     }
 
     label {
@@ -50,10 +66,12 @@
       border: none;
       border-radius: 999px;
       padding: 10px 16px;
-      background: var(--accent);
-      color: #fff7f0;
+      background: linear-gradient(135deg, #6c63ff, #22c55e);
+      color: #fff;
       font-weight: 600;
       cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
     }
 
     button:disabled {
@@ -74,6 +92,10 @@
 </head>
 <body>
   <div class="card">
+    <div class="header">
+      <h3>Welcome back</h3>
+      <span>Login with your admin-provided credentials.</span>
+    </div>
     <div>
       <label for="username">Username</label>
       <input id="username" type="text" placeholder="Username" />
@@ -127,11 +149,21 @@
             { type: "login-success", username: data.username, role: data.role || "user" },
             "*"
           );
+          try {
+            window.parent.location.href = "humanizer.html";
+          } catch {
+            // Parent navigation blocked; fallback to message only.
+          }
         } else {
           window.location.href = "humanizer.html";
         }
       } catch (err) {
-        errorEl.textContent = err.message || "Login failed.";
+        const msg = err && err.message ? err.message : "Login failed.";
+        if (msg.toLowerCase().includes("failed to fetch")) {
+          errorEl.textContent = "Login request failed. Ensure the API is running and open the site via a local server (not file://).";
+        } else {
+          errorEl.textContent = msg;
+        }
       } finally {
         loginBtn.disabled = false;
       }
