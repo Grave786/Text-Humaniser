@@ -70,6 +70,7 @@ def shutdown_event() -> None:
 # Data models for API requests, including HumanizeRequest for the /humanize endpoint, SegmentRequest for the /segment endpoint, and RewriteTestRequest for the /rewrite/test endpoint. These models define the expected input structure for each endpoint and include validation for required fields and constraints on sentence counts.
 class HumanizeRequest(BaseModel):
     text: str
+    username: str | None = None
 
 # Data model for the /segment endpoint, which includes the input text and parameters for minimum and maximum sentences per chunk. This model is used to validate the input for the segmentation endpoint and ensure that the parameters are within acceptable ranges.
 class SegmentRequest(BaseModel):
@@ -97,6 +98,35 @@ class UserCreateRequest(BaseModel):
 class AuthLoginRequest(BaseModel):
     username: str
     password: str
+
+
+class AdminUserUpdateRequest(BaseModel):
+    username: str | None = None
+    email: str | None = None
+    password: str | None = None
+
+
+def _sanitize_user(user: dict) -> dict:
+    return {
+        "id": str(user.get("_id")),
+        "username": user.get("username"),
+        "email": user.get("email"),
+        "role": user.get("role"),
+        "created_at": user.get("created_at"),
+    }
+
+
+def _sanitize_scan(scan: dict) -> dict:
+    return {
+        "id": str(scan.get("_id")),
+        "username": scan.get("username"),
+        "created_at": scan.get("created_at"),
+        "source": scan.get("source"),
+        "detector_ai_probability": scan.get("detector_ai_probability"),
+        "original_text": scan.get("original_text"),
+        "humanized_text": scan.get("humanized_text"),
+    }
+
 
 
 def _run_humanize_pipeline(original: str) -> dict:
@@ -249,6 +279,7 @@ def humanize(payload: HumanizeRequest) -> dict:
                 {
                     "created_at": mongo_now_utc(),
                     "source": "humanize",
+                    "username": payload.username.strip() if payload.username else None,
                     "original_text": original,
                     "humanized_text": final_text,
                     "detector_ai_probability": ai_score,
@@ -366,3 +397,76 @@ def login(payload: AuthLoginRequest) -> dict:
         "username": user.get("username"),
         "role": user.get("role"),
     }
+
+
+@app.get("/admin/users")
+def list_users() -> dict:
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    users = list(db.users.find().sort("created_at", -1))
+    return {"items": [_sanitize_user(u) for u in users]}
+
+
+@app.patch("/admin/users/{username}")
+def update_user(username: str, payload: AdminUserUpdateRequest) -> dict:
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    updates: dict = {}
+    new_username = payload.username.strip() if payload.username else None
+    if new_username:
+        updates["username"] = new_username
+    if payload.email is not None:
+        updates["email"] = payload.email.strip() if payload.email else None
+    if payload.password:
+        if CryptContext is None:
+            return {"error": "Password hashing is not available. Install passlib."}
+        pwd_ctx = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+        updates["password_hash"] = pwd_ctx.hash(payload.password)
+
+    if not updates:
+        return {"error": "No updates provided."}
+
+    result = db.users.update_one({"username": username}, {"$set": updates})
+    if result.matched_count == 0:
+        return {"error": "User not found."}
+
+    # Keep scans in sync if username changed.
+    if new_username and new_username != username:
+        db.scans.update_many({"username": username}, {"$set": {"username": new_username}})
+
+    return {"ok": True}
+
+
+@app.delete("/admin/users/{username}")
+def delete_user(username: str) -> dict:
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    result = db.users.delete_one({"username": username})
+    if result.deleted_count == 0:
+        return {"error": "User not found."}
+    return {"ok": True}
+
+
+@app.get("/admin/scans")
+def list_scans(username: str | None = None) -> dict:
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    query = {"username": username} if username else {}
+    scans = list(db.scans.find(query).sort("created_at", -1).limit(50))
+    return {"items": [_sanitize_scan(s) for s in scans]}

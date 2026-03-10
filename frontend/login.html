@@ -3,111 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>User Login</title>
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
-    :root {
-      --ink: #10121a;
-      --ink-soft: #444756;
-      --accent: #6c63ff;
-      --accent-2: #ff7a59;
-      --line: rgba(15, 23, 42, 0.12);
-      --error: #b04c2f;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Space Grotesk", system-ui, sans-serif;
-      background: #ffffff;
-      color: var(--ink);
-    }
-
-    .card {
-      padding: 22px 22px 24px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .header {
-      display: grid;
-      gap: 4px;
-    }
-
-    .header h3 {
-      margin: 0;
-      font-size: 1.1rem;
-    }
-
-    .header span {
-      color: var(--ink-soft);
-      font-size: 0.85rem;
-    }
-
-    label {
-      font-size: 0.85rem;
-      color: var(--ink-soft);
-    }
-
-    input {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      padding: 10px 12px;
-      font-size: 0.95rem;
-      background: #fbfbfd;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 16px;
-      background: linear-gradient(135deg, #6c63ff, #22c55e);
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .note {
-      font-size: 0.78rem;
-      color: var(--ink-soft);
-    }
-
-    .error {
-      font-size: 0.85rem;
-      color: var(--error);
-    }
-  </style>
+  <title>Humanizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="card">
-    <div class="header">
-      <h3>Welcome back</h3>
-      <span>Login with your admin-provided credentials.</span>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
+  <header class="sticky top-0 z-20 bg-slate-950 text-slate-100 shadow-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+      <div class="text-lg font-bold text-emerald-300">Humanizer Login</div>
     </div>
-    <div>
-      <label for="username">Username</label>
-      <input id="username" type="text" placeholder="Username" />
+  </header>
+
+  <main class="mx-auto flex min-h-[70vh] max-w-6xl items-center justify-center px-6 py-10">
+    <div class="w-full max-w-md rounded-2xl border border-white/30 bg-white/80 p-6 shadow-2xl backdrop-blur">
+      <div class="mb-4">
+        <h2 class="text-xl font-semibold">Welcome back</h2>
+        <p class="text-sm text-slate-600">Login with your admin-provided credentials.</p>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold uppercase text-slate-500" for="username">Username</label>
+          <input id="username" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" placeholder="Username" />
+        </div>
+        <div>
+          <label class="text-xs font-semibold uppercase text-slate-500" for="password">Password</label>
+          <input id="password" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="password" placeholder="Password" />
+        </div>
+      </div>
+      <p class="mt-3 text-xs text-slate-500">No signup here. Contact admin for access.</p>
+      <div class="mt-2 text-sm text-rose-500" id="error"></div>
+      <button id="login" class="mt-4 w-full rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-4 py-2 text-sm font-semibold text-white shadow" type="button">Login</button>
     </div>
-    <div>
-      <label for="password">Password</label>
-      <input id="password" type="password" placeholder="Password" />
-    </div>
-    <div class="note">No signup here. Contact admin for access.</div>
-    <div class="error" id="error"></div>
-    <button id="login" type="button">Login</button>
-  </div>
+  </main>
+
+  <footer class="bg-slate-950 py-4 text-center text-xs text-slate-400">
+    Copyscape Humanizer · Secure login
+  </footer>
 
   <script>
     const API_BASE_DEFAULT = "http://127.0.0.1:8000";
@@ -144,26 +74,23 @@
         }
         localStorage.setItem("auth_user", data.username);
         localStorage.setItem("auth_role", data.role || "user");
+        const target = data.role === "admin" ? "admin.html" : "humanizer.html";
+
         if (window.parent && window.parent !== window) {
           window.parent.postMessage(
             { type: "login-success", username: data.username, role: data.role || "user" },
             "*"
           );
           try {
-            window.parent.location.href = "humanizer.html";
+            window.parent.location.href = target;
           } catch {
             // Parent navigation blocked; fallback to message only.
           }
         } else {
-          window.location.href = "humanizer.html";
+          window.location.href = target;
         }
       } catch (err) {
-        const msg = err && err.message ? err.message : "Login failed.";
-        if (msg.toLowerCase().includes("failed to fetch")) {
-          errorEl.textContent = "Login request failed. Ensure the API is running and open the site via a local server (not file://).";
-        } else {
-          errorEl.textContent = msg;
-        }
+        errorEl.textContent = err.message || "Login failed.";
       } finally {
         loginBtn.disabled = false;
       }

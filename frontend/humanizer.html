@@ -4,306 +4,61 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Humanizer Workspace</title>
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
-
-    :root {
-      --ink: #10121a;
-      --ink-soft: #444756;
-      --accent: #6c63ff;
-      --accent-2: #ff7a59;
-      --accent-3: #22c55e;
-      --line: rgba(15, 23, 42, 0.12);
-      --surface: rgba(255, 255, 255, 0.86);
-      --chip: #0f1627;
-      --chip-text: #f2f6ff;
-      --good: #0f7a55;
-      --warn: #b04c2f;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Space Grotesk", system-ui, sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 12% 15%, rgba(108, 99, 255, 0.16), transparent 45%),
-        radial-gradient(circle at 90% 10%, rgba(255, 122, 89, 0.16), transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.16), transparent 50%),
-        #f6f4ff;
-      min-height: 100vh;
-    }
-
-    .page {
-      display: grid;
-      gap: 24px;
-      padding: 24px 18px 40px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 18px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 20px 40px rgba(18, 18, 30, 0.08);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #6c63ff, #22c55e);
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      color: #fff;
-      box-shadow: 0 12px 26px rgba(108, 99, 255, 0.28);
-    }
-
-    .brand h1 {
-      font-size: 1.4rem;
-      margin: 0;
-    }
-
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-    }
-
-    .pill {
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: rgba(16, 18, 26, 0.08);
-      color: var(--ink-soft);
-    }
-
-    .grid {
-      display: grid;
-      gap: 20px;
-    }
-
-    @media (min-width: 980px) {
-      .grid {
-        grid-template-columns: 1.1fr 0.9fr;
-      }
-    }
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: 22px;
-      box-shadow: 0 14px 35px rgba(18, 18, 30, 0.08);
-    }
-
-    .panel h2 {
-      margin: 0 0 12px;
-      font-size: 1.15rem;
-    }
-
-    label {
-      font-size: 0.9rem;
-      color: var(--ink-soft);
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 180px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      padding: 16px;
-      font-size: 0.98rem;
-      line-height: 1.5;
-      resize: vertical;
-      background: #fffdf8;
-      font-family: "Playfair Display", serif;
-    }
-
-    .controls {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 18px;
-      background: linear-gradient(135deg, #6c63ff, #ff7a59);
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 10px 22px rgba(108, 99, 255, 0.26);
-    }
-
-    button.secondary {
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--ink);
-      box-shadow: none;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 24px rgba(108, 99, 255, 0.22);
-    }
-
-    .toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      font-size: 0.85rem;
-    }
-
-    .output {
-      min-height: 200px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      padding: 16px;
-      background: #fffdf8;
-      font-family: "Playfair Display", serif;
-      line-height: 1.55;
-      white-space: pre-wrap;
-    }
-
-    .metrics {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .chip {
-      background: var(--chip);
-      color: var(--chip-text);
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-    }
-
-    .stage {
-      border-top: 1px dashed var(--line);
-      padding-top: 12px;
-      margin-top: 12px;
-    }
-
-    .stage h3 {
-      margin: 0 0 6px;
-      font-size: 0.95rem;
-    }
-
-    .stage .chip {
-      background: #2d2d2d;
-    }
-
-    .success {
-      color: var(--good);
-      font-weight: 600;
-    }
-
-    .error {
-      color: var(--warn);
-      font-weight: 600;
-    }
-
-    .footer {
-      font-size: 0.8rem;
-      color: var(--ink-soft);
-      text-align: center;
-      padding: 12px 0 4px;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="page">
-    <header>
-      <div class="brand">
-        <div class="brand-mark">CS</div>
-        <div>
-          <h1>Humanizer Workspace</h1>
-          <span>Refine text with live AI stages</span>
-        </div>
-      </div>
-      <div class="status">
-        <span class="pill" id="status-pill">Status: idle</span>
-        <button class="secondary" id="logout-btn" type="button">Logout</button>
-      </div>
-    </header>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
+  <header class="sticky top-0 z-20 bg-slate-950 text-slate-100 shadow-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+      <div class="text-lg font-bold text-emerald-300">Humanizer</div>
+      <nav class="flex items-center gap-4 text-sm font-medium text-slate-200">
+        <a class="hover:text-white" href="landing.html">Home</a>
+        <a class="hover:text-white" href="#workspace">Workspace</a>
+        <a class="hover:text-white" href="#output">Output</a>
+        <a class="hidden hover:text-white" href="admin.html" id="admin-link">Admin</a>
+        <a class="hover:text-white" href="#" id="logout-btn">Logout</a>
+      </nav>
+    </div>
+  </header>
 
-    <div class="grid">
-      <section class="panel">
-        <h2>Input</h2>
-        <div class="controls">
-          <label for="input-text">Paste your text</label>
-          <textarea id="input-text" placeholder="Drop raw text here..."></textarea>
+  <main class="mx-auto grid max-w-6xl gap-6 px-6 py-8" id="workspace">
+    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <section class="rounded-2xl border border-white/60 bg-white/80 p-6 shadow-xl">
+        <h2 class="text-lg font-semibold">Input</h2>
+        <div class="mt-4 grid gap-3">
+          <label class="text-sm text-slate-600" for="input-text">Paste your text</label>
+          <textarea id="input-text" class="min-h-[180px] w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:outline-none" placeholder="Drop raw text here..."></textarea>
 
-          <div class="row">
-            <label class="toggle">
+          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600">
+            <label class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
               <input id="debug-toggle" type="checkbox" />
               Show pipeline stages
             </label>
-            <label class="toggle">
+            <label class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
               <input id="segment-toggle" type="checkbox" />
               Show segments
             </label>
           </div>
 
-          <div class="row">
-            <button id="humanize-btn" type="button">Humanize</button>
-            <button id="clear-btn" class="secondary" type="button">Clear</button>
-            <button id="copy-btn" class="secondary" type="button">Copy output</button>
+          <div class="flex flex-wrap gap-3">
+            <button id="humanize-btn" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow">Humanize</button>
+            <button id="clear-btn" class="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700">Clear</button>
+            <button id="copy-btn" class="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700">Copy output</button>
           </div>
         </div>
       </section>
 
-      <section class="panel">
-        <h2>Output</h2>
-        <div class="output" id="output-text">Run the pipeline to see results.</div>
-        <div class="metrics" id="metrics"></div>
-        <div id="stages"></div>
+      <section class="rounded-2xl border border-white/60 bg-white/80 p-6 shadow-xl" id="output">
+        <h2 class="text-lg font-semibold">Output</h2>
+        <div id="output-text" class="mt-4 min-h-[200px] rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">Run the pipeline to see results.</div>
+        <div id="metrics" class="mt-4 flex flex-wrap gap-2"></div>
+        <div id="stages" class="mt-4 space-y-4"></div>
       </section>
     </div>
+  </main>
 
-    <div class="footer">Copyscape Humanizer · Private workspace</div>
-  </div>
+  <footer class="bg-slate-950 py-4 text-center text-xs text-slate-400">
+    Copyscape Humanizer · Private workspace
+  </footer>
 
   <script>
     const API_BASE_DEFAULT = "http://127.0.0.1:8000";
@@ -312,17 +67,21 @@
     const outputText = document.getElementById("output-text");
     const metrics = document.getElementById("metrics");
     const stages = document.getElementById("stages");
-    const statusPill = document.getElementById("status-pill");
     const humanizeBtn = document.getElementById("humanize-btn");
     const copyBtn = document.getElementById("copy-btn");
     const clearBtn = document.getElementById("clear-btn");
     const debugToggle = document.getElementById("debug-toggle");
     const segmentToggle = document.getElementById("segment-toggle");
     const logoutBtn = document.getElementById("logout-btn");
+    const adminLink = document.getElementById("admin-link");
 
     const sessionUser = localStorage.getItem("auth_user");
+    const sessionRole = localStorage.getItem("auth_role");
     if (!sessionUser) {
       window.location.href = "landing.html";
+    }
+    if (sessionRole === "admin") {
+      adminLink.style.display = "inline";
     }
 
     const apiUrl = (path) => {
@@ -330,16 +89,11 @@
       return `${base.replace(/\/$/, "")}${path}`;
     };
 
-    const setStatus = (text, ok = true) => {
-      statusPill.textContent = `Status: ${text}`;
-      statusPill.className = "pill" + (ok ? " success" : " error");
-    };
-
     const showMetrics = (items) => {
       metrics.innerHTML = "";
       items.forEach((item) => {
         const el = document.createElement("span");
-        el.className = "chip";
+        el.className = "rounded-full bg-slate-900 px-3 py-1 text-xs text-white";
         el.textContent = item;
         metrics.appendChild(el);
       });
@@ -352,17 +106,18 @@
       }
       Object.entries(stageData).forEach(([key, value]) => {
         const section = document.createElement("div");
-        section.className = "stage";
+        section.className = "rounded-2xl border border-slate-200 bg-white p-4";
         const title = document.createElement("h3");
+        title.className = "text-sm font-semibold";
         title.textContent = key.replace(/_/g, " ");
         const score = document.createElement("span");
-        score.className = "chip";
+        score.className = "mr-2 inline-flex rounded-full bg-slate-900 px-3 py-1 text-xs text-white";
         score.textContent = `ai: ${value.ai_probability}`;
         const count = document.createElement("span");
-        count.className = "chip";
+        count.className = "inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700";
         count.textContent = `${value.word_count} words`;
         const text = document.createElement("div");
-        text.className = "output";
+        text.className = "mt-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm";
         text.textContent = value.text;
         section.appendChild(title);
         section.appendChild(score);
@@ -375,14 +130,12 @@
     const handleHumanize = async () => {
       const text = inputText.value.trim();
       if (!text) {
-        setStatus("enter text", false);
         return;
       }
 
       humanizeBtn.disabled = true;
-      setStatus("running");
 
-      const payload = { text };
+      const payload = { text, username: sessionUser };
       const useDebug = debugToggle.checked;
       const useSegments = segmentToggle.checked;
 
@@ -430,10 +183,7 @@
             `words: ${data.humanized_text.split(/\s+/).filter(Boolean).length}`,
           ]);
         }
-
-        setStatus("done", true);
       } catch (err) {
-        setStatus("error", false);
         outputText.textContent = err.message || "Request failed";
         showStages(null);
       } finally {
@@ -441,7 +191,10 @@
       }
     };
 
-    const handleLogout = () => {
+    const handleLogout = (event) => {
+      if (event) {
+        event.preventDefault();
+      }
       localStorage.removeItem("auth_user");
       localStorage.removeItem("auth_role");
       window.location.href = "landing.html";
@@ -454,14 +207,12 @@
       outputText.textContent = "Run the pipeline to see results.";
       showStages(null);
       showMetrics([]);
-      setStatus("idle", true);
     });
     copyBtn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(outputText.textContent);
-        setStatus("copied", true);
       } catch {
-        setStatus("copy failed", false);
+        // ignore
       }
     });
   </script>

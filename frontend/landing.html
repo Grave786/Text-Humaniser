@@ -3,385 +3,189 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Copyscape Humanizer</title>
+  <title>Humanizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
-
-    :root {
-      --ink: #10121a;
-      --ink-soft: #3f4252;
-      --accent: #ff7a59;
-      --accent-2: #6c63ff;
-      --accent-3: #22c55e;
-      --surface: rgba(255, 255, 255, 0.84);
-      --line: rgba(15, 23, 42, 0.1);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Space Grotesk", system-ui, sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255, 122, 89, 0.18), transparent 50%),
-        radial-gradient(circle at 90% 10%, rgba(108, 99, 255, 0.2), transparent 45%),
-        radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.18), transparent 50%),
-        #f7f4ff;
-      min-height: 100vh;
-    }
-
-    .page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px 18px 60px;
-      display: grid;
-      gap: 26px;
-    }
-
-    header {
-      position: sticky;
-      top: 16px;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 18px;
-      border-radius: 18px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 18px 40px rgba(18, 18, 30, 0.08);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #ff7a59, #6c63ff);
-      display: grid;
-      place-items: center;
-      color: #fff;
-      font-weight: 700;
-      box-shadow: 0 12px 26px rgba(108, 99, 255, 0.3);
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 1.35rem;
-      letter-spacing: 0.3px;
-    }
-
-    .chip {
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      background: rgba(16, 18, 26, 0.08);
-      color: var(--ink-soft);
-    }
-
-    .hero {
-      padding: 36px;
-      border-radius: 28px;
-      background: linear-gradient(120deg, rgba(255, 255, 255, 0.95), rgba(246, 240, 255, 0.9));
-      border: 1px solid var(--line);
-      box-shadow: 0 24px 60px rgba(18, 18, 30, 0.12);
-      display: grid;
-      gap: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      right: -120px;
-      top: -140px;
-      width: 340px;
-      height: 340px;
-      background: radial-gradient(circle, rgba(108, 99, 255, 0.35), transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero h2 {
-      font-family: "Playfair Display", serif;
-      font-size: 2.4rem;
-      margin: 0;
-      max-width: 700px;
-    }
-
-    .hero p {
-      margin: 0;
-      color: var(--ink-soft);
-      font-size: 1.05rem;
-      max-width: 560px;
-    }
-
-    .cta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 12px 22px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .primary {
-      background: linear-gradient(135deg, #ff7a59, #ffb347);
-      color: #fff;
-      box-shadow: 0 12px 26px rgba(255, 122, 89, 0.35);
-    }
-
-    .secondary {
-      background: #fff;
-      color: var(--ink);
-      border: 1px solid var(--line);
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 26px rgba(108, 99, 255, 0.2);
-    }
-
-    .grid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .card {
-      padding: 16px;
-      border-radius: 18px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      box-shadow: 0 10px 30px rgba(18, 18, 30, 0.08);
-    }
-
-    .card strong {
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .section {
-      padding: 28px;
-      border-radius: 24px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      box-shadow: 0 18px 40px rgba(18, 18, 30, 0.08);
-      display: grid;
-      gap: 14px;
-    }
-
-    .section h3 {
-      margin: 0;
-      font-size: 1.4rem;
-    }
-
-    .stats {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-
-    .stat {
-      padding: 16px;
-      border-radius: 16px;
-      background: #fff;
-      border: 1px solid var(--line);
-      text-align: center;
-    }
-
-    .stat strong {
-      display: block;
-      font-size: 1.5rem;
-      color: var(--accent-2);
-    }
-
-    footer {
-      padding: 20px;
-      text-align: center;
-      color: var(--ink-soft);
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 12, 22, 0.55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 30;
-    }
-
-    .modal-card {
-      width: min(560px, 100%);
-      border-radius: 22px;
-      overflow: hidden;
-      background: #fff;
-      border: 1px solid var(--line);
-      box-shadow: 0 28px 60px rgba(12, 12, 24, 0.25);
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      background: #f4f1ff;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    iframe {
-      width: 100%;
-      border: none;
-      height: 360px;
-    }
+    html { scroll-behavior: smooth; }
   </style>
 </head>
-<body>
-  <div class="page">
-    <header>
-      <div class="brand">
-        <div class="brand-mark">CS</div>
-        <div>
-          <h1>Copyscape Humanizer</h1>
-          <div class="chip">Private AI refinement</div>
-        </div>
-      </div>
-      <div class="chip">Admin-managed access</div>
-    </header>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
+  <header class="sticky top-0 z-20 bg-gradient-to-r from-slate-950 via-indigo-950 to-teal-900 text-white shadow-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+      <div class="text-xl font-bold tracking-wide text-emerald-300">Humanizer</div>
+      <nav class="flex flex-wrap items-center gap-6 text-sm font-medium text-slate-200">
+        <a class="hover:text-white" href="#home">Home</a>
+        <a class="hover:text-white" href="#features">Features</a>
+        <a class="hover:text-white" href="#pricing">Pricing</a>
+        <a class="hover:text-white" href="#testimonials">Testimonials</a>
+        <a class="hover:text-white" href="#stats">Stats</a>
+        <a class="hover:text-white" href="#" id="open-login">Login</a>
+      </nav>
+    </div>
+  </header>
 
-    <section class="hero">
-      <span class="chip">Secure workspace</span>
-      <h2>Transform AI drafts into human-first copy with confidence.</h2>
-      <p>
-        Copyscape Humanizer reshapes tone, cadence, and originality while keeping your message intact.
-        Every rewrite stays inside your own stack with admin-controlled access.
-      </p>
-      <div class="cta-row">
-        <button class="primary" id="open-login" type="button">Login to Humanizer</button>
-        <button class="secondary" id="open-humanizer" type="button">Go to Workspace</button>
-      </div>
-    </section>
-
-    <section class="section">
-      <h3>What you get</h3>
-      <div class="grid">
-        <div class="card">
-          <strong>Real-time pipeline</strong>
-          Track stage-by-stage rewrites with optional debugging views.
-        </div>
-        <div class="card">
-          <strong>Secure storage</strong>
-          Every scan is logged to your MongoDB for audit and review.
-        </div>
-        <div class="card">
-          <strong>Admin-only accounts</strong>
-          No self-signups; access is curated by administrators.
-        </div>
-        <div class="card">
-          <strong>Consistent output</strong>
-          Control tone and burstiness with stable, repeatable results.
-        </div>
+  <main class="mx-auto grid max-w-6xl gap-8 px-6 pb-8 pt-8">
+    <section id="home" class="rounded-3xl border border-white/60 bg-white/90 p-10 shadow-2xl backdrop-blur">
+      <span class="inline-flex rounded-full bg-emerald-100 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">Secure workspace</span>
+      <h1 class="mt-6 font-serif text-4xl font-semibold text-slate-900">Transform AI drafts into human-first copy with confidence.</h1>
+      <p class="mt-4 max-w-2xl text-base text-slate-600">Copyscape Humanizer reshapes tone, cadence, and originality while keeping your message intact. Every rewrite stays inside your own stack with admin-controlled access.</p>
+      <div class="mt-6 flex flex-wrap gap-4">
+        <button id="open-login-cta" class="rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-6 py-3 text-sm font-semibold text-white shadow-lg">Login to Humanizer</button>
+        <button id="open-humanizer" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow">Go to Workspace</button>
       </div>
     </section>
 
-    <section class="section">
-      <h3>How it works</h3>
-      <div class="grid">
-        <div class="card">
-          <strong>1. Authenticate</strong>
-          Use your admin-created credentials to access the workspace.
+    <section id="features" class="rounded-3xl border border-white/60 bg-white/80 p-8 shadow-xl">
+      <h2 class="text-2xl font-semibold">Feature highlights</h2>
+      <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+          <h3 class="font-semibold">Real-time pipeline</h3>
+          <p class="mt-1 text-sm text-slate-600">Track stage-by-stage rewrites with optional debugging views.</p>
         </div>
-        <div class="card">
-          <strong>2. Paste your draft</strong>
-          Input text, optionally reveal pipeline stages.
+        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+          <h3 class="font-semibold">Secure storage</h3>
+          <p class="mt-1 text-sm text-slate-600">Every scan is logged to your MongoDB for audit and review.</p>
         </div>
-        <div class="card">
-          <strong>3. Review output</strong>
-          Copy the final humanized response in seconds.
+        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+          <h3 class="font-semibold">Admin-only accounts</h3>
+          <p class="mt-1 text-sm text-slate-600">No self-signups; access is curated by administrators.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+          <h3 class="font-semibold">Consistent output</h3>
+          <p class="mt-1 text-sm text-slate-600">Control tone and burstiness with stable, repeatable results.</p>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <h3>Performance snapshot</h3>
-      <div class="stats">
-        <div class="stat">
-          <strong>11</strong>
-          Processing stages
+    <section id="pricing" class="rounded-3xl border border-white/60 bg-white/80 p-8 shadow-xl">
+      <h2 class="text-2xl font-semibold">Pricing</h2>
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <h3 class="font-semibold">Starter</h3>
+          <p class="mt-2 text-3xl font-semibold text-rose-500">$0</p>
+          <p class="mt-2 text-sm text-slate-600">Local development and testing.</p>
         </div>
-        <div class="stat">
-          <strong>100%</strong>
-          Private pipeline
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow">
+          <h3 class="font-semibold">Team</h3>
+          <p class="mt-2 text-3xl font-semibold text-emerald-600">$49</p>
+          <p class="mt-2 text-sm text-slate-600">Shared workspace, admin control, and pipeline analytics.</p>
         </div>
-        <div class="stat">
-          <strong>0</strong>
-          User self-signups
-        </div>
-        <div class="stat">
-          <strong>24/7</strong>
-          Availability focus
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <h3 class="font-semibold">Enterprise</h3>
+          <p class="mt-2 text-3xl font-semibold text-slate-700">Custom</p>
+          <p class="mt-2 text-sm text-slate-600">Dedicated support, custom models, and compliance reviews.</p>
         </div>
       </div>
     </section>
 
-    <footer>
-      Copyscape Humanizer · Built for internal teams. Contact admin for access.
-    </footer>
-  </div>
-
-  <div class="modal hidden" id="login-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <strong>User Login</strong>
-        <button class="secondary" id="close-login" type="button">Close</button>
+    <section id="testimonials" class="rounded-3xl border border-white/60 bg-white/80 p-8 shadow-xl">
+      <h2 class="text-2xl font-semibold">Testimonials</h2>
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <p class="text-sm text-slate-700">“We finally have a humanization layer that respects our editorial policy and doesn’t leak data.”</p>
+          <p class="mt-3 text-xs font-semibold text-slate-500">— Editorial Lead</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <p class="text-sm text-slate-700">“The pipeline transparency makes it easy to trust and adjust the output.”</p>
+          <p class="mt-3 text-xs font-semibold text-slate-500">— Product Manager</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <p class="text-sm text-slate-700">“Admin-only access was non-negotiable for us. This fits perfectly.”</p>
+          <p class="mt-3 text-xs font-semibold text-slate-500">— Compliance Officer</p>
+        </div>
       </div>
-      <iframe src="login.html" title="Login"></iframe>
+    </section>
+
+    <section id="stats" class="rounded-3xl border border-white/60 bg-white/80 p-8 shadow-xl">
+      <h2 class="text-2xl font-semibold">Stats</h2>
+      <div class="mt-6 grid gap-4 md:grid-cols-4">
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
+          <div class="text-3xl font-semibold text-sky-600">11</div>
+          <div class="text-sm text-slate-600">Processing stages</div>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
+          <div class="text-3xl font-semibold text-sky-600">100%</div>
+          <div class="text-sm text-slate-600">Private pipeline</div>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
+          <div class="text-3xl font-semibold text-sky-600">0</div>
+          <div class="text-sm text-slate-600">User self-signups</div>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
+          <div class="text-3xl font-semibold text-sky-600">24/7</div>
+          <div class="text-sm text-slate-600">Availability focus</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mt-10 bg-gradient-to-r from-slate-950 via-indigo-950 to-teal-900 text-slate-200">
+    <div class="mx-auto grid max-w-6xl gap-6 px-6 py-8 md:grid-cols-3">
+      <div>
+        <h4 class="text-sm font-semibold text-white">Humanizer</h4>
+        <p class="mt-2 text-sm text-slate-300">Advanced AI-authorship detection for trusted decisions.</p>
+        <a class="mt-3 inline-block text-sm text-slate-300 hover:text-white" href="#home">Home</a>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold text-white">Quick Links</h4>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#features">Features</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#pricing">Pricing</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#testimonials">Testimonials</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#stats">Stats</a>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold text-white">Company</h4>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#home">About Us</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#home">Contact</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#home">Privacy Policy</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="#home">Terms</a>
+      </div>
+    </div>
+    <div class="border-t border-white/10 py-4 text-center text-xs text-slate-400">Copyright 2026 Requin Solutions Pvt Ltd. All rights reserved.</div>
+  </footer>
+
+  <div class="fixed inset-0 z-30 hidden items-center justify-center bg-slate-950/60 p-6" id="login-modal">
+    <div class="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
+        <strong class="text-sm text-slate-700">User Login</strong>
+        <button class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600" id="close-login" type="button">Close</button>
+      </div>
+      <iframe class="h-96 w-full border-0" src="login.html" title="Login"></iframe>
     </div>
   </div>
 
   <script>
     const loginModal = document.getElementById("login-modal");
     const openLoginBtn = document.getElementById("open-login");
+    const openLoginCta = document.getElementById("open-login-cta");
     const closeLoginBtn = document.getElementById("close-login");
     const openHumanizerBtn = document.getElementById("open-humanizer");
 
-    const openLogin = () => {
+    const openLogin = (event) => {
+      if (event) {
+        event.preventDefault();
+      }
       loginModal.classList.remove("hidden");
+      loginModal.classList.add("flex");
     };
 
     const closeLogin = () => {
       loginModal.classList.add("hidden");
+      loginModal.classList.remove("flex");
     };
 
     const openHumanizer = () => {
       const session = localStorage.getItem("auth_user");
+      const role = localStorage.getItem("auth_role");
       if (!session) {
         openLogin();
         return;
       }
-      window.location.href = "humanizer.html";
+      if (role === "admin") {
+        window.location.href = "admin.html";
+      } else {
+        window.location.href = "humanizer.html";
+      }
     };
 
     window.addEventListener("message", (event) => {
@@ -391,10 +195,15 @@
       localStorage.setItem("auth_user", event.data.username);
       localStorage.setItem("auth_role", event.data.role || "user");
       closeLogin();
-      window.location.href = "humanizer.html";
+      if (event.data.role === "admin") {
+        window.location.href = "admin.html";
+      } else {
+        window.location.href = "humanizer.html";
+      }
     });
 
     openLoginBtn.addEventListener("click", openLogin);
+    openLoginCta.addEventListener("click", openLogin);
     closeLoginBtn.addEventListener("click", closeLogin);
     openHumanizerBtn.addEventListener("click", openHumanizer);
   </script>
