@@ -11,6 +11,7 @@
     h1, h2, h3 { font-family: "Playfair Display", serif; }
   </style>
 </head>
+<!-- Admin panel with user management and scan logs -->
 <body class="min-h-screen bg-gradient-to-br from-rose-50 via-amber-50 to-sky-100 text-slate-900">
   <header class="sticky top-0 z-20 w-full bg-gradient-to-r from-indigo-900 via-slate-900 to-emerald-900 text-slate-900 shadow-xl">
     <div class="flex w-full items-center justify-between gap-6 px-8 py-5">
@@ -30,7 +31,7 @@
       </nav>
     </div>
   </header>
-
+<!-- Main content with user creation form, user list, and scan logs -->
   <main class="grid w-full gap-6 px-8 py-8">
     <section id="create" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-8 shadow-2xl backdrop-blur">
       <h2 class="text-2xl font-semibold">Create User</h2>
@@ -60,12 +61,13 @@
         <span class="text-xs text-slate-600" id="create-status"></span>
       </div>
     </section>
-
+<!-- User list with edit and delete options -->
     <section id="users" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-8 shadow-2xl backdrop-blur">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <h2 class="text-2xl font-semibold">Users</h2>
         <div class="text-sm text-slate-600">Click a user to edit, view logs, or delete.</div>
       </div>
+      <!-- User table  -->
       <div class="mt-4 overflow-auto rounded-2xl border border-indigo-100/80">
         <table class="w-full text-left text-sm">
           <thead class="bg-slate-800/80 text-xs uppercase text-slate-600">
@@ -81,7 +83,7 @@
         </table>
       </div>
     </section>
-
+<!-- Scan logs with details and pagination -->
     <section id="logs" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-8 shadow-2xl backdrop-blur">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <h2 class="text-2xl font-semibold">Scan Logs</h2>
@@ -103,17 +105,18 @@
       </div>
     </section>
   </main>
-
+<!-- Footer and modals for user editing and log details -->
   <footer class="mt-6 bg-indigo-950 text-slate-100">
     <div class="border-t border-white/10 py-4 text-center text-xs text-slate-200">Humanizer � Admin Console</div>
   </footer>
-
+<!-- Edit user modal -->
   <div class="fixed inset-0 z-30 hidden items-center justify-center bg-indigo-950/60 p-6" id="user-modal">
     <div class="w-full max-w-xl rounded-3xl border border-indigo-100/80 bg-indigo-50 p-8 shadow-2xl">
       <div class="flex items-center justify-between">
         <h3 class="text-xl font-semibold">Edit User</h3>
         <button id="close-modal" class="rounded-full border border-indigo-100/80 bg-indigo-50 px-3 py-1 text-xs font-semibold text-slate-100 text-rose-600 !text-rose-600 hover:!text-rose-700" type="button" aria-label="Close">X</button>
       </div>
+      <!-- User details form -->
       <div class="mt-4 grid gap-3">
         <div>
           <label class="text-xs font-semibold uppercase text-slate-600" for="edit-username">Username</label>
@@ -128,6 +131,7 @@
           <input id="edit-password" class="mt-2 w-full rounded-2xl border border-indigo-100/80 bg-indigo-50 px-4 py-3 text-sm text-slate-900" type="text" placeholder="Leave blank to keep" />
         </div>
       </div>
+      <!-- Action buttons -->
       <div class="mt-4 flex flex-wrap gap-3">
         <button id="save-user" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow">Save</button>
         <button id="view-logs" class="rounded-full border border-indigo-100/80 bg-indigo-50 px-5 py-2 text-sm font-semibold text-slate-900">View Logs</button>
@@ -136,13 +140,15 @@
       </div>
     </div>
   </div>
-
+<!-- Log details modal -->
   <div class="fixed inset-0 z-30 hidden items-center justify-center bg-indigo-950/60 p-6" id="log-modal">
     <div class="w-full max-w-4xl max-h-[80vh] overflow-y-auto rounded-3xl border border-indigo-100/80 bg-indigo-50 p-8 shadow-2xl">
+      <!-- Log details content -->
       <div class="flex items-center justify-between">
         <h3 class="text-xl font-semibold">Log Details</h3>
         <button id="close-log" class="rounded-full border border-indigo-100/80 bg-indigo-50 px-3 py-1 text-xs font-semibold text-slate-100 text-rose-600 !text-rose-600 hover:!text-rose-700" type="button" aria-label="Close">X</button>
       </div>
+      
       <div class="mt-4 grid gap-4">
         <div class="rounded-2xl border border-indigo-100/80 bg-indigo-50 p-4">
           <div class="text-xs uppercase text-slate-600">Meta</div>
