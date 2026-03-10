@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Humanizer Workspace</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
+    body { font-family: "Outfit", system-ui, sans-serif; }
+    h1, h2, h3 { font-family: "Playfair Display", serif; }
+  </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
-  <header class="sticky top-0 z-20 bg-slate-950 text-slate-100 shadow-xl">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
-      <div class="text-lg font-bold text-emerald-300">Humanizer</div>
+  <header class="sticky top-0 z-20 w-full bg-slate-950 text-slate-100 shadow-xl">
+    <div class="flex w-full items-center justify-between gap-6 px-8 py-5">
+      <div class="text-xl font-semibold text-emerald-300">Humanizer</div>
       <nav class="flex items-center gap-4 text-sm font-medium text-slate-200">
         <a class="hover:text-white" href="landing.html">Home</a>
         <a class="hover:text-white" href="#workspace">Workspace</a>
@@ -20,60 +25,79 @@
     </div>
   </header>
 
-  <main class="mx-auto grid max-w-6xl gap-6 px-6 py-8" id="workspace">
-    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-      <section class="rounded-2xl border border-white/60 bg-white/80 p-6 shadow-xl">
-        <h2 class="text-lg font-semibold">Input</h2>
-        <div class="mt-4 grid gap-3">
-          <label class="text-sm text-slate-600" for="input-text">Paste your text</label>
-          <textarea id="input-text" class="min-h-[180px] w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:outline-none" placeholder="Drop raw text here..."></textarea>
+  <main class="grid w-full gap-6 px-8 py-10" id="workspace">
+    <section class="rounded-3xl border border-white/60 bg-white/90 p-8 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <h2 class="text-2xl font-semibold">Input</h2>
+        <span id="status-pill" class="hidden items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+          <span class="h-2 w-2 animate-pulse rounded-full bg-indigo-500"></span>
+          Humanizing...
+        </span>
+      </div>
+      <div class="mt-4 grid gap-3">
+        <label class="text-sm text-slate-600" for="input-text">Paste your text</label>
+        <textarea id="input-text" class="min-h-[180px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:outline-none" placeholder="Drop raw text here..."></textarea>
 
-          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600">
-            <label class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
-              <input id="debug-toggle" type="checkbox" />
-              Show pipeline stages
-            </label>
-            <label class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
-              <input id="segment-toggle" type="checkbox" />
-              Show segments
-            </label>
-          </div>
-
-          <div class="flex flex-wrap gap-3">
-            <button id="humanize-btn" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow">Humanize</button>
-            <button id="clear-btn" class="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700">Clear</button>
-            <button id="copy-btn" class="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700">Copy output</button>
-          </div>
+        <div class="flex flex-wrap gap-3">
+          <button id="humanize-btn" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-6 py-3 text-sm font-semibold text-white shadow-lg">Humanize</button>
+          <button id="clear-btn" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700">Clear</button>
+          <button id="copy-btn" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700">Copy output</button>
         </div>
-      </section>
+        <div id="status-line" class="hidden">
+          <span class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1 text-xs font-semibold text-indigo-600 shadow-sm">
+            Humanizing...
+          </span>
+        </div>
+      </div>
+    </section>
 
-      <section class="rounded-2xl border border-white/60 bg-white/80 p-6 shadow-xl" id="output">
-        <h2 class="text-lg font-semibold">Output</h2>
-        <div id="output-text" class="mt-4 min-h-[200px] rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">Run the pipeline to see results.</div>
-        <div id="metrics" class="mt-4 flex flex-wrap gap-2"></div>
-        <div id="stages" class="mt-4 space-y-4"></div>
-      </section>
-    </div>
+    <section class="rounded-3xl border border-white/60 bg-white/90 p-8 shadow-2xl hidden" id="output-wrap">
+      <h2 class="text-2xl font-semibold">Output</h2>
+      <div id="output" class="mt-4 min-h-[200px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">Run the pipeline to see results.</div>
+      <div id="metrics" class="mt-4 flex flex-wrap gap-2"></div>
+      <div id="stages" class="mt-4 space-y-4"></div>
+    </section>
   </main>
 
-  <footer class="bg-slate-950 py-4 text-center text-xs text-slate-400">
-    Copyscape Humanizer · Private workspace
+  <footer class="mt-10 bg-slate-950 text-slate-200">
+    <div class="grid w-full gap-6 px-8 py-8 md:grid-cols-3">
+      <div>
+        <h4 class="text-sm font-semibold text-white">Humanizer</h4>
+        <p class="mt-2 text-sm text-slate-300">Advanced AI-authorship detection for trusted decisions.</p>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold text-white">Quick Links</h4>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#features">Features</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#pricing">Pricing</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#testimonials">Testimonials</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#stats">Stats</a>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold text-white">Company</h4>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#home">About Us</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#home">Contact</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#home">Privacy Policy</a>
+        <a class="mt-2 block text-sm text-slate-300 hover:text-white" href="landing.html#home">Terms</a>
+      </div>
+    </div>
+    <div class="border-t border-white/10 py-4 text-center text-xs text-slate-400">Copyright 2026 Requin Solutions Pvt Ltd. All rights reserved.</div>
   </footer>
 
   <script>
     const API_BASE_DEFAULT = "http://127.0.0.1:8000";
 
     const inputText = document.getElementById("input-text");
-    const outputText = document.getElementById("output-text");
+    const outputText = document.getElementById("output");
+    const outputWrap = document.getElementById("output-wrap");
     const metrics = document.getElementById("metrics");
     const stages = document.getElementById("stages");
     const humanizeBtn = document.getElementById("humanize-btn");
     const copyBtn = document.getElementById("copy-btn");
     const clearBtn = document.getElementById("clear-btn");
-    const debugToggle = document.getElementById("debug-toggle");
-    const segmentToggle = document.getElementById("segment-toggle");
     const logoutBtn = document.getElementById("logout-btn");
     const adminLink = document.getElementById("admin-link");
+    const statusPill = document.getElementById("status-pill");
+    const statusLine = document.getElementById("status-line");
 
     const sessionUser = localStorage.getItem("auth_user");
     const sessionRole = localStorage.getItem("auth_role");
@@ -127,37 +151,29 @@
       });
     };
 
+    const setProcessing = (isProcessing) => {
+      if (isProcessing) {
+        statusPill.classList.remove("hidden");
+        statusLine.classList.remove("hidden");
+        humanizeBtn.disabled = true;
+      } else {
+        statusPill.classList.add("hidden");
+        statusLine.classList.add("hidden");
+        humanizeBtn.disabled = false;
+      }
+    };
+
     const handleHumanize = async () => {
       const text = inputText.value.trim();
       if (!text) {
         return;
       }
 
-      humanizeBtn.disabled = true;
+      setProcessing(true);
 
       const payload = { text, username: sessionUser };
-      const useDebug = debugToggle.checked;
-      const useSegments = segmentToggle.checked;
-
       try {
-        if (useSegments) {
-          const segmentRes = await fetch(apiUrl("/segment"), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text }),
-          });
-          const segmentData = await segmentRes.json();
-          if (segmentData.error) {
-            throw new Error(segmentData.error);
-          }
-          showMetrics([
-            `paragraphs: ${segmentData.paragraph_count}`,
-            `sentences: ${segmentData.sentence_count}`,
-            `chunks: ${segmentData.chunk_count}`,
-          ]);
-        }
-
-        const res = await fetch(apiUrl(useDebug ? "/humanize/debug" : "/humanize"), {
+        const res = await fetch(apiUrl("/humanize"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -168,26 +184,20 @@
           throw new Error(data.error);
         }
 
-        if (useDebug) {
-          outputText.textContent = data.stages.final.text;
-          showStages(data.stages);
-          showMetrics([
-            `ai: ${data.stages.final.ai_probability}`,
-            `words: ${data.stages.final.word_count}`,
-          ]);
-        } else {
-          outputText.textContent = data.humanized_text;
-          showStages(null);
-          showMetrics([
-            `ai: ${data.detector_ai_probability}`,
-            `words: ${data.humanized_text.split(/\s+/).filter(Boolean).length}`,
-          ]);
-        }
+        outputWrap.classList.remove("hidden");
+
+        outputText.textContent = data.humanized_text;
+        showStages(null);
+        showMetrics([
+          `ai: ${data.detector_ai_probability}`,
+          `words: ${data.humanized_text.split(/\s+/).filter(Boolean).length}`,
+        ]);
+        setProcessing(false);
       } catch (err) {
+        outputWrap.classList.remove("hidden");
         outputText.textContent = err.message || "Request failed";
         showStages(null);
-      } finally {
-        humanizeBtn.disabled = false;
+        setProcessing(false);
       }
     };
 
@@ -205,8 +215,10 @@
     clearBtn.addEventListener("click", () => {
       inputText.value = "";
       outputText.textContent = "Run the pipeline to see results.";
+      outputWrap.classList.add("hidden");
       showStages(null);
       showMetrics([]);
+      setProcessing(false);
     });
     copyBtn.addEventListener("click", async () => {
       try {

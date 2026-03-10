@@ -3,40 +3,46 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Humanizer</title>
+  <title>Humanizer Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
+    body { font-family: "Outfit", system-ui, sans-serif; }
+    h1, h2, h3 { font-family: "Playfair Display", serif; }
+  </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
-  <header class="sticky top-0 z-20 bg-slate-950 text-slate-100 shadow-xl">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
-      <div class="text-lg font-bold text-emerald-300">Humanizer Login</div>
+  <header class="sticky top-0 z-20 w-full bg-slate-950 text-slate-100 shadow-xl">
+    <div class="flex w-full items-center justify-between gap-6 px-8 py-5">
+      <div class="text-xl font-semibold text-emerald-300">Humanizer Login</div>
     </div>
   </header>
 
-  <main class="mx-auto flex min-h-[70vh] max-w-6xl items-center justify-center px-6 py-10">
-    <div class="w-full max-w-md rounded-2xl border border-white/30 bg-white/80 p-6 shadow-2xl backdrop-blur">
-      <div class="mb-4">
-        <h2 class="text-xl font-semibold">Welcome back</h2>
-        <p class="text-sm text-slate-600">Login with your admin-provided credentials.</p>
-      </div>
-      <div class="space-y-3">
+  <main class="mx-auto flex min-h-[70vh] w-full items-center justify-center px-8 py-12">
+    <div class="w-full max-w-md rounded-3xl border border-white/60 bg-white/90 p-8 shadow-2xl backdrop-blur">
+      <h2 class="text-2xl font-semibold text-slate-900">Welcome back</h2>
+      <p class="mt-2 text-sm text-slate-600">Login with your admin-provided credentials.</p>
+
+      <div class="mt-6 space-y-4">
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="username">Username</label>
-          <input id="username" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" placeholder="Username" />
+          <input id="username" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="text" placeholder="Username" />
         </div>
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="password">Password</label>
-          <input id="password" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="password" placeholder="Password" />
+          <input id="password" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="password" placeholder="Password" />
         </div>
       </div>
-      <p class="mt-3 text-xs text-slate-500">No signup here. Contact admin for access.</p>
+
+      <p class="mt-4 text-xs text-slate-500">No signup here. Contact admin for access.</p>
       <div class="mt-2 text-sm text-rose-500" id="error"></div>
-      <button id="login" class="mt-4 w-full rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-4 py-2 text-sm font-semibold text-white shadow" type="button">Login</button>
+
+      <button id="login" class="mt-6 w-full rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-6 py-3 text-sm font-semibold text-white shadow-lg" type="button">Login</button>
     </div>
   </main>
 
-  <footer class="bg-slate-950 py-4 text-center text-xs text-slate-400">
-    Copyscape Humanizer · Secure login
+  <footer class="mt-6 bg-slate-950 text-slate-200">
+    <div class="border-t border-white/10 py-4 text-center text-xs text-slate-400">Copyscape Humanizer · Secure login</div>
   </footer>
 
   <script>

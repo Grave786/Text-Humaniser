@@ -6,69 +6,69 @@
   <title>Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
-    body { font-family: "Manrope", system-ui, sans-serif; }
-    h1, h2, h3 { font-family: "Syne", system-ui, sans-serif; }
+    @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
+    body { font-family: "Outfit", system-ui, sans-serif; }
+    h1, h2, h3 { font-family: "Playfair Display", serif; }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
-  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 shadow-lg backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
-      <div class="text-lg font-bold text-indigo-600">Admin Panel</div>
-      <nav class="flex items-center gap-4 text-sm font-semibold text-slate-500">
-        <a class="hover:text-indigo-600" href="#create">Create User</a>
-        <a class="hover:text-indigo-600" href="#users">Users</a>
-        <a class="hover:text-indigo-600" href="#logs">Logs</a>
-        <a class="hover:text-indigo-600" href="humanizer.html">Workspace</a>
-        <a class="hover:text-rose-600" href="#" id="logout-btn">Logout</a>
+  <header class="sticky top-0 z-20 w-full bg-slate-950 text-slate-100 shadow-xl">
+    <div class="flex w-full items-center justify-between gap-6 px-8 py-5">
+      <div class="text-xl font-semibold text-emerald-300">Admin Panel</div>
+      <nav class="flex items-center gap-4 text-sm font-medium text-slate-200">
+        <a class="hover:text-white" href="#create">Create User</a>
+        <a class="hover:text-white" href="#users">Users</a>
+        <a class="hover:text-white" href="#logs">Logs</a>
+        <a class="hover:text-white" href="humanizer.html">Workspace</a>
+        <a class="hover:text-rose-400" href="#" id="logout-btn">Logout</a>
       </nav>
     </div>
   </header>
 
-  <main class="mx-auto grid max-w-6xl gap-6 px-6 py-8">
-    <section id="create" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-      <h2 class="text-xl font-semibold">Create User</h2>
+  <main class="grid w-full gap-6 px-8 py-8">
+    <section id="create" class="rounded-3xl border border-white/60 bg-white/90 p-8 shadow-2xl">
+      <h2 class="text-2xl font-semibold">Create User</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-4">
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="username">Username</label>
-          <input id="username" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" />
+          <input id="username" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="text" />
         </div>
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="password">Password</label>
-          <input id="password" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" />
+          <input id="password" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="text" />
         </div>
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="email">Email</label>
-          <input id="email" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" />
+          <input id="email" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="text" />
         </div>
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="role">Role</label>
-          <select id="role" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+          <select id="role" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
             <option value="user">User</option>
             <option value="admin">Admin</option>
           </select>
         </div>
       </div>
       <div class="mt-4 flex items-center gap-3">
-        <button id="create-btn" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white shadow">Create</button>
+        <button id="create-btn" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow">Create</button>
         <span class="text-xs text-slate-500" id="create-status"></span>
       </div>
     </section>
 
-    <section id="users" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+    <section id="users" class="rounded-3xl border border-white/60 bg-white/90 p-8 shadow-2xl">
       <div class="flex flex-wrap items-center justify-between gap-4">
-        <h2 class="text-xl font-semibold">Users</h2>
+        <h2 class="text-2xl font-semibold">Users</h2>
         <div class="text-sm text-slate-500">Click a user to edit, view logs, or delete.</div>
       </div>
-      <div class="mt-4 overflow-auto rounded-xl border border-slate-200">
+      <div class="mt-4 overflow-auto rounded-2xl border border-slate-200">
         <table class="w-full text-left text-sm">
           <thead class="bg-slate-100 text-xs uppercase text-slate-500">
             <tr>
-              <th class="px-3 py-2">Username</th>
-              <th class="px-3 py-2">Email</th>
-              <th class="px-3 py-2">Role</th>
-              <th class="px-3 py-2">Created</th>
-              <th class="px-3 py-2">Actions</th>
+              <th class="px-4 py-3">Username</th>
+              <th class="px-4 py-3">Email</th>
+              <th class="px-4 py-3">Role</th>
+              <th class="px-4 py-3">Created</th>
+              <th class="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody id="users-body" class="divide-y divide-slate-100"></tbody>
@@ -76,20 +76,20 @@
       </div>
     </section>
 
-    <section id="logs" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+    <section id="logs" class="rounded-3xl border border-white/60 bg-white/90 p-8 shadow-2xl">
       <div class="flex flex-wrap items-center justify-between gap-4">
-        <h2 class="text-xl font-semibold">Scan Logs</h2>
+        <h2 class="text-2xl font-semibold">Scan Logs</h2>
         <div class="text-sm text-slate-500" id="logs-title">Showing latest 50 scans</div>
       </div>
-      <div class="mt-4 overflow-auto rounded-xl border border-slate-200">
+      <div class="mt-4 overflow-auto rounded-2xl border border-slate-200">
         <table class="w-full text-left text-sm">
           <thead class="bg-slate-100 text-xs uppercase text-slate-500">
             <tr>
-              <th class="px-3 py-2">Created</th>
-              <th class="px-3 py-2">User</th>
-              <th class="px-3 py-2">AI Prob</th>
-              <th class="px-3 py-2">Original</th>
-              <th class="px-3 py-2">Humanized</th>
+              <th class="px-4 py-3">Created</th>
+              <th class="px-4 py-3">User</th>
+              <th class="px-4 py-3">AI Prob</th>
+              <th class="px-4 py-3">Original</th>
+              <th class="px-4 py-3">Humanized</th>
             </tr>
           </thead>
           <tbody id="logs-body" class="divide-y divide-slate-100"></tbody>
@@ -98,34 +98,34 @@
     </section>
   </main>
 
-  <footer class="border-t border-slate-200 bg-white/70 py-4 text-center text-xs text-slate-500">
-    Copyscape Humanizer · Admin console
+  <footer class="mt-6 bg-slate-950 text-slate-200">
+    <div class="border-t border-white/10 py-4 text-center text-xs text-slate-400">Copyscape Humanizer · Admin console</div>
   </footer>
 
   <div class="fixed inset-0 z-30 hidden items-center justify-center bg-slate-950/60 p-6" id="user-modal">
-    <div class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+    <div class="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Edit User</h3>
+        <h3 class="text-xl font-semibold">Edit User</h3>
         <button id="close-modal" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600" type="button">Close</button>
       </div>
       <div class="mt-4 grid gap-3">
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="edit-username">Username</label>
-          <input id="edit-username" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" />
+          <input id="edit-username" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="text" />
         </div>
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="edit-email">Email</label>
-          <input id="edit-email" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" />
+          <input id="edit-email" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="text" />
         </div>
         <div>
           <label class="text-xs font-semibold uppercase text-slate-500" for="edit-password">New Password</label>
-          <input id="edit-password" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm" type="text" placeholder="Leave blank to keep" />
+          <input id="edit-password" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" type="text" placeholder="Leave blank to keep" />
         </div>
       </div>
       <div class="mt-4 flex flex-wrap gap-3">
-        <button id="save-user" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white shadow">Save</button>
-        <button id="view-logs" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">View Logs</button>
-        <button id="delete-user" class="rounded-full bg-rose-500 px-4 py-2 text-sm font-semibold text-white">Delete</button>
+        <button id="save-user" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow">Save</button>
+        <button id="view-logs" class="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700">View Logs</button>
+        <button id="delete-user" class="rounded-full bg-rose-500 px-5 py-2 text-sm font-semibold text-white">Delete</button>
         <span class="text-xs text-slate-500" id="modal-status"></span>
       </div>
     </div>
@@ -193,18 +193,18 @@
       const data = await res.json();
       usersBody.innerHTML = "";
       if (data.error) {
-        usersBody.innerHTML = `<tr><td class="px-3 py-2" colspan="5">${data.error}</td></tr>`;
+        usersBody.innerHTML = `<tr><td class="px-4 py-3" colspan="5">${data.error}</td></tr>`;
         return;
       }
       data.items.forEach((u) => {
         const row = document.createElement("tr");
         row.className = "cursor-pointer hover:bg-slate-50";
         row.innerHTML = `
-          <td class="px-3 py-2 font-semibold text-slate-700">${u.username || ""}</td>
-          <td class="px-3 py-2">${u.email || ""}</td>
-          <td class="px-3 py-2">${u.role || ""}</td>
-          <td class="px-3 py-2">${formatDate(u.created_at)}</td>
-          <td class="px-3 py-2">
+          <td class="px-4 py-3 font-semibold text-slate-700">${u.username || ""}</td>
+          <td class="px-4 py-3">${u.email || ""}</td>
+          <td class="px-4 py-3">${u.role || ""}</td>
+          <td class="px-4 py-3">${formatDate(u.created_at)}</td>
+          <td class="px-4 py-3">
             <button class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">Manage</button>
           </td>
         `;
@@ -220,17 +220,17 @@
       logsBody.innerHTML = "";
       logsTitle.textContent = username ? `Logs for ${username}` : "Showing latest 50 scans";
       if (data.error) {
-        logsBody.innerHTML = `<tr><td class="px-3 py-2" colspan="5">${data.error}</td></tr>`;
+        logsBody.innerHTML = `<tr><td class="px-4 py-3" colspan="5">${data.error}</td></tr>`;
         return;
       }
       data.items.forEach((s) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td class="px-3 py-2">${formatDate(s.created_at)}</td>
-          <td class="px-3 py-2">${s.username || ""}</td>
-          <td class="px-3 py-2">${s.detector_ai_probability ?? ""}</td>
-          <td class="px-3 py-2">${(s.original_text || "").slice(0, 80)}</td>
-          <td class="px-3 py-2">${(s.humanized_text || "").slice(0, 80)}</td>
+          <td class="px-4 py-3">${formatDate(s.created_at)}</td>
+          <td class="px-4 py-3">${s.username || ""}</td>
+          <td class="px-4 py-3">${s.detector_ai_probability ?? ""}</td>
+          <td class="px-4 py-3">${(s.original_text || "").slice(0, 80)}</td>
+          <td class="px-4 py-3">${(s.humanized_text || "").slice(0, 80)}</td>
         `;
         logsBody.appendChild(row);
       });
