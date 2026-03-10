@@ -6,6 +6,11 @@ from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+try:
+    from passlib.context import CryptContext
+except Exception:
+    CryptContext = None
+
 from backend.db.mongo import connect as mongo_connect
 from backend.db.mongo import disconnect as mongo_disconnect
 from backend.db.mongo import get_db as get_mongo_db
@@ -85,8 +90,13 @@ class HumanizeDebugRequest(BaseModel):
 
 class UserCreateRequest(BaseModel):
     username: str
+    password: str
     email: str | None = None
     role: str = "user"
+
+class AuthLoginRequest(BaseModel):
+    username: str
+    password: str
 
 
 def _run_humanize_pipeline(original: str) -> dict:
@@ -294,6 +304,11 @@ def create_user(payload: UserCreateRequest) -> dict:
     username = payload.username.strip()
     if not username:
         return {"error": "username is required."}
+    password = payload.password.strip()
+    if not password:
+        return {"error": "password is required."}
+    if CryptContext is None:
+        return {"error": "Password hashing is not available. Install passlib."}
     role = payload.role.strip().lower()
     if role not in {"user", "admin"}:
         return {"error": "role must be 'user' or 'admin'."}
@@ -304,11 +319,13 @@ def create_user(payload: UserCreateRequest) -> dict:
         reason = status.get("last_error") or "Unknown"
         return {"error": f"MongoDB is not connected. Reason: {reason}"}
 
+    pwd_ctx = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto") if CryptContext else None
     doc = {
         "created_at": mongo_now_utc(),
         "username": username,
         "email": payload.email.strip() if payload.email else None,
         "role": role,
+        "password_hash": pwd_ctx.hash(password) if pwd_ctx else None,
     }
     try:
         result = db.users.insert_one(doc)
@@ -320,3 +337,32 @@ def create_user(payload: UserCreateRequest) -> dict:
         return {"error": f"Failed to store user. Reason: {exc}"}
 
     return {"id": str(result.inserted_id), "username": username, "role": role}
+
+
+@app.post("/auth/login")
+def login(payload: AuthLoginRequest) -> dict:
+    username = payload.username.strip()
+    password = payload.password.strip()
+    if not username or not password:
+        return {"error": "username and password are required."}
+    if CryptContext is None:
+        return {"error": "Password hashing is not available. Install passlib."}
+
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    user = db.users.find_one({"username": username})
+    if not user or "password_hash" not in user:
+        return {"error": "Invalid credentials."}
+    pwd_ctx = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+    if not pwd_ctx.verify(password, user["password_hash"]):
+        return {"error": "Invalid credentials."}
+
+    return {
+        "ok": True,
+        "username": user.get("username"),
+        "role": user.get("role"),
+    }

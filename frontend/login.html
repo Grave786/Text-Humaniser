@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Login</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+    :root {
+      --ink: #12121a;
+      --ink-soft: #4a4a57;
+      --accent: #1e64d2;
+      --line: #d0d7e6;
+      --error: #b04c2f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .card {
+      padding: 18px 20px 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+    }
+
+    input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: #fbfbfd;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--accent);
+      color: #fff7f0;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+
+    .error {
+      font-size: 0.85rem;
+      color: var(--error);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div>
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="Username" />
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Password" />
+    </div>
+    <div class="note">No signup here. Contact admin for access.</div>
+    <div class="error" id="error"></div>
+    <button id="login" type="button">Login</button>
+  </div>
+
+  <script>
+    const API_BASE_DEFAULT = "http://127.0.0.1:8000";
+
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const errorEl = document.getElementById("error");
+    const loginBtn = document.getElementById("login");
+
+    const apiUrl = (path) => {
+      const base = localStorage.getItem("api_base") || API_BASE_DEFAULT;
+      return `${base.replace(/\/$/, "")}${path}`;
+    };
+
+    const login = async () => {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!username || !password) {
+        errorEl.textContent = "Enter username and password.";
+        return;
+      }
+
+      loginBtn.disabled = true;
+      errorEl.textContent = "";
+      try {
+        const res = await fetch(apiUrl("/auth/login"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        localStorage.setItem("auth_user", data.username);
+        localStorage.setItem("auth_role", data.role || "user");
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(
+            { type: "login-success", username: data.username, role: data.role || "user" },
+            "*"
+          );
+        } else {
+          window.location.href = "humanizer.html";
+        }
+      } catch (err) {
+        errorEl.textContent = err.message || "Login failed.";
+      } finally {
+        loginBtn.disabled = false;
+      }
+    };
+
+    loginBtn.addEventListener("click", login);
+  </script>
+</body>
+</html>

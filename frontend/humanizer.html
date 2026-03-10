@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Humanizer Console</title>
+  <title>Humanizer Workspace</title>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap");
 
     :root {
-      --ink: #1c1c1a;
-      --ink-soft: #3e3e39;
-      --paper: #f6f2ea;
-      --accent: #c86b2e;
-      --accent-dark: #8f4820;
-      --mist: #efe7d7;
-      --line: #d8cdb8;
-      --chip: #1f1f1f;
-      --chip-text: #f9f7f1;
+      --ink: #12121a;
+      --ink-soft: #4a4a57;
+      --paper: #f6f4ef;
+      --accent: #1e64d2;
+      --mist: #e9edf6;
+      --line: #d0d7e6;
+      --chip: #0f1627;
+      --chip-text: #f2f6ff;
       --good: #0f7a55;
+      --warn: #b04c2f;
     }
 
     * {
@@ -28,14 +28,14 @@
       margin: 0;
       font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
       color: var(--ink);
-      background: radial-gradient(circle at top left, #fff2d9 0%, #f8efe0 40%, #f3e6d3 100%);
+      background: radial-gradient(circle at top right, #eef1ff 0%, #f6f4ef 45%, #f8efe0 100%);
       min-height: 100vh;
     }
 
     .page {
       display: grid;
       gap: 24px;
-      padding: 32px 18px 40px;
+      padding: 24px 18px 40px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -47,7 +47,7 @@
       justify-content: space-between;
       gap: 16px;
       padding: 14px 18px;
-      background: rgba(255, 255, 255, 0.55);
+      background: rgba(255, 255, 255, 0.7);
       border: 1px solid var(--line);
       border-radius: 20px;
       backdrop-filter: blur(6px);
@@ -63,25 +63,18 @@
       width: 48px;
       height: 48px;
       border-radius: 14px;
-      background: conic-gradient(from 140deg, #f6a45a, #f0c37c, #f6a45a);
+      background: conic-gradient(from 160deg, #1f5bb0, #62a3ff, #1f5bb0);
       display: grid;
       place-items: center;
       font-weight: 700;
-      color: #3c2313;
-      box-shadow: 0 10px 25px rgba(160, 87, 39, 0.25);
+      color: #eef4ff;
+      box-shadow: 0 10px 25px rgba(44, 84, 143, 0.25);
     }
 
     .brand h1 {
       font-size: 1.4rem;
       margin: 0;
       letter-spacing: 0.5px;
-    }
-
-    .brand span {
-      font-family: "Spectral", serif;
-      font-style: italic;
-      color: var(--ink-soft);
-      font-size: 0.95rem;
     }
 
     .status {
@@ -92,7 +85,7 @@
     }
 
     .pill {
-      padding: 4px 10px;
+      padding: 6px 12px;
       border-radius: 999px;
       background: var(--mist);
       border: 1px solid var(--line);
@@ -110,7 +103,7 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.75);
       border: 1px solid var(--line);
       border-radius: 24px;
       padding: 22px;
@@ -140,15 +133,6 @@
       font-family: "Spectral", serif;
     }
 
-    input[type="text"] {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      padding: 10px 12px;
-      font-size: 0.95rem;
-      background: #fffdf8;
-    }
-
     .controls {
       display: grid;
       gap: 12px;
@@ -171,7 +155,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 8px 18px rgba(200, 107, 46, 0.25);
+      box-shadow: 0 8px 18px rgba(30, 100, 210, 0.25);
     }
 
     button.secondary {
@@ -190,7 +174,7 @@
 
     button:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 12px 20px rgba(200, 107, 46, 0.2);
+      box-shadow: 0 12px 20px rgba(30, 100, 210, 0.2);
     }
 
     .toggle {
@@ -251,7 +235,7 @@
     }
 
     .error {
-      color: #8f2b1f;
+      color: var(--warn);
       font-weight: 600;
     }
 
@@ -267,24 +251,22 @@
   <div class="page">
     <header>
       <div class="brand">
-        <div class="brand-mark">AH</div>
+        <div class="brand-mark">CS</div>
         <div>
-          <h1>AI Humanizer Console</h1>
+          <h1>Humanizer Workspace</h1>
           <span>Rewrite text with the backend pipeline</span>
         </div>
       </div>
       <div class="status">
         <span class="pill" id="status-pill">Status: idle</span>
         <button class="secondary" id="health-btn" type="button">Check API</button>
+        <button class="secondary" id="logout-btn" type="button">Logout</button>
       </div>
     </header>
 
     <div class="grid">
       <section class="panel">
         <h2>Input</h2>
-        <label for="api-base">API base URL</label>
-        <input id="api-base" type="text" value="http://127.0.0.1:8000" />
-
         <div class="controls">
           <label for="input-text">Paste your text</label>
           <textarea id="input-text" placeholder="Drop raw text here..."></textarea>
@@ -320,7 +302,8 @@
   </div>
 
   <script>
-    const apiBaseInput = document.getElementById("api-base");
+    const API_BASE_DEFAULT = "http://127.0.0.1:8000";
+
     const inputText = document.getElementById("input-text");
     const outputText = document.getElementById("output-text");
     const metrics = document.getElementById("metrics");
@@ -332,15 +315,21 @@
     const healthBtn = document.getElementById("health-btn");
     const debugToggle = document.getElementById("debug-toggle");
     const segmentToggle = document.getElementById("segment-toggle");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    const sessionUser = localStorage.getItem("auth_user");
+    if (!sessionUser) {
+      window.location.href = "landing.html";
+    }
+
+    const apiUrl = (path) => {
+      const base = localStorage.getItem("api_base") || API_BASE_DEFAULT;
+      return `${base.replace(/\/$/, "")}${path}`;
+    };
 
     const setStatus = (text, ok = true) => {
       statusPill.textContent = `Status: ${text}`;
       statusPill.className = "pill" + (ok ? " success" : " error");
-    };
-
-    const apiUrl = (path) => {
-      const base = apiBaseInput.value.trim().replace(/\/$/, "");
-      return `${base}${path}`;
     };
 
     const showMetrics = (items) => {
@@ -460,8 +449,15 @@
       }
     };
 
+    const handleLogout = () => {
+      localStorage.removeItem("auth_user");
+      localStorage.removeItem("auth_role");
+      window.location.href = "landing.html";
+    };
+
     humanizeBtn.addEventListener("click", handleHumanize);
     healthBtn.addEventListener("click", handleHealth);
+    logoutBtn.addEventListener("click", handleLogout);
     clearBtn.addEventListener("click", () => {
       inputText.value = "";
       outputText.textContent = "Run the pipeline to see results.";
