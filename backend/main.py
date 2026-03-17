@@ -109,7 +109,7 @@ class AdminUserUpdateRequest(BaseModel):
     email: str | None = None
     password: str | None = None
 
-
+# Helper functions to sanitize user and scan data for API responses, ensuring that sensitive information is not exposed and that the output is consistent. These functions take raw database documents and return sanitized versions suitable for API responses.
 def _sanitize_user(user: dict) -> dict:
     return {
         "id": str(user.get("_id")),
@@ -131,7 +131,7 @@ def _sanitize_scan(scan: dict) -> dict:
         "humanized_text": scan.get("humanized_text"),
     }
 
-
+# Main humanization pipeline that processes the input text through various stages including segmentation, rewriting, styling, burstiness, noise injection, and final optimization. The function captures timing for each stage and can optionally include intermediate stage outputs in the response for debugging purposes.
 def _run_humanize_pipeline(
     original: str,
     *,
@@ -165,7 +165,8 @@ def _run_humanize_pipeline(
         current = styled_segments
         if capture_stages:
             stage_texts["styled"] = " ".join(current).strip()
-
+            
+# `stealth` applies additional transformations that can reduce readability but may help evade AI detection, especially for shorter text segments.
     if mode == "stealth":
         t0 = time.perf_counter()
         bursty_segments = [apply_burstiness(s) for s in current]
