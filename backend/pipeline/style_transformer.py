@@ -126,7 +126,7 @@ def transform_voice(text: str) -> str:
     sentences = _split_sentences(text)
     if not sentences:
         return text
-
+# Apply passive to active and active to passive transformations with certain probabilities to create variability in sentence structure while ensuring that the resulting sentences remain coherent and grammatically correct.
     transformed: List[str] = []
     for sentence in sentences:
         s = sentence.strip()
