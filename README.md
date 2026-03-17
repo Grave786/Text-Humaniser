@@ -57,6 +57,20 @@ uvicorn main:app --reload
 Health check: `GET /health`
 Humanize endpoint: `POST /humanize`
 
+## Performance and quality knobs
+
+- Use request `mode`:
+  - `fast`: best throughput for long text (keeps coherence, fewer random edits)
+  - `balanced`: default
+  - `stealth`: more aggressive randomness (may reduce readability)
+- Chunking is fixed server-side (configurable via env vars): `CHUNK_MIN_SENTENCES`, `CHUNK_MAX_SENTENCES`.
+- Rewriter environment variables:
+  - `REWRITER_BATCH_SIZE` (default `8`)
+  - `REWRITER_FP16` (default `1`, only applies on CUDA)
+  - `REWRITER_NUM_BEAMS` (default `1`)
+  - `REWRITER_TEMPERATURE` (default `0.9`)
+  - `REWRITER_TOP_P` (default `0.92`)
+
 ## Notes
 
 - Put your trained detector at `models/xgb_detector.pkl`.

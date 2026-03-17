@@ -72,11 +72,8 @@ def _apply_typo_noise(text: str, intensity: float) -> str:
     letters[p], letters[q] = letters[q], letters[p]
     typo = "".join(letters)
 
-# With a certain probability based on the intensity level, present the typo alongside the correct word (e.g., "teh -> the") to mimic common writing mistakes and corrections. Otherwise, just use the typo alone.
-    if random.random() < (0.45 + 0.25 * intensity):
-        words[idx] = f"{typo} -> {word}"
-    else:
-        words[idx] = typo
+    # Keep typos subtle: never include explicit correction markers like "typo -> word".
+    words[idx] = typo
     return " ".join(words)
 
 # Apply hesitation noise by randomly inserting hesitation phrases (e.g., "uh,", "hmm,") before sentences based on the specified intensity level. This helps create a more human-like writing style by introducing natural hesitations that occur in spoken language.
@@ -92,7 +89,7 @@ def _apply_hesitation_noise(text: str, intensity: float) -> str:
     return " ".join(sentences).strip()
 
 # Main function to apply all noise transformations to the input text, including contractions, punctuation, typos, and hesitations. The transformations are applied based on a specified intensity level, which controls the likelihood of each type of noise being applied. The resulting text is normalized for spacing to ensure consistent formatting.
-def inject_human_noise(text: str, intensity: float = 0.35) -> str:
+def inject_human_noise(text: str, intensity: float = 0.35, allow_typos: bool = False) -> str:
     if not text:
         return text
 
@@ -100,6 +97,7 @@ def inject_human_noise(text: str, intensity: float = 0.35) -> str:
     noisy = text
     noisy = _apply_contraction_noise(noisy, intensity)
     noisy = _apply_punctuation_noise(noisy, intensity)
-    noisy = _apply_typo_noise(noisy, intensity)
+    if allow_typos:
+        noisy = _apply_typo_noise(noisy, intensity)
     noisy = _apply_hesitation_noise(noisy, intensity)
     return _normalize_spacing(noisy)

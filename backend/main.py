@@ -1,4 +1,5 @@
 import os
+import time
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -22,7 +23,7 @@ from backend.pipeline.features import extract_features, warmup_inference_stack
 from backend.pipeline.perplexity import optimize_perplexity
 from backend.pipeline.rewriter import (
     get_rewriter_status,
-    rewrite_segment,
+    rewrite_segments,
     warmup_rewriter,
 )
 from backend.pipeline.segmentation import segment_text, split_paragraphs, split_sentences
@@ -54,6 +55,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 detector = Detector(model_path="models/xgb_model_.pkl")
+CHUNK_MIN_SENTENCES = int(os.getenv("CHUNK_MIN_SENTENCES", "2") or "2")
+CHUNK_MAX_SENTENCES = int(os.getenv("CHUNK_MAX_SENTENCES", "3") or "3")
 
 # Load the T5 model during API startup to avoid first-request delay.
 @app.on_event("startup")
@@ -71,22 +74,23 @@ def shutdown_event() -> None:
 class HumanizeRequest(BaseModel):
     text: str
     username: str | None = None
+    # `fast`: quickest for long text (keeps coherence, fewer random edits)
+    # `balanced`: default quality mode
+    # `stealth`: includes aggressive randomness (may reduce readability)
+    mode: str = "balanced"
 
 # Data model for the /segment endpoint, which includes the input text and parameters for minimum and maximum sentences per chunk. This model is used to validate the input for the segmentation endpoint and ensure that the parameters are within acceptable ranges.
 class SegmentRequest(BaseModel):
     text: str
-    min_sentences: int = 2
-    max_sentences: int = 3
 
 # Data model for the /rewrite/test endpoint, which includes the input text and parameters for minimum and maximum sentences per chunk. This model is used to validate the input for the rewrite testing endpoint and ensure that the parameters are within acceptable ranges.
 class RewriteTestRequest(BaseModel):
     text: str
-    min_sentences: int = 2
-    max_sentences: int = 3
 
 
 class HumanizeDebugRequest(BaseModel):
     text: str
+    mode: str = "balanced"
 
 
 class UserCreateRequest(BaseModel):
@@ -128,55 +132,109 @@ def _sanitize_scan(scan: dict) -> dict:
     }
 
 
+def _run_humanize_pipeline(
+    original: str,
+    *,
+    mode: str = "balanced",
+    capture_stages: bool = True,
+) -> dict:
+    mode = (mode or "balanced").strip().lower()
+    if mode not in {"fast", "balanced", "stealth"}:
+        mode = "balanced"
 
-def _run_humanize_pipeline(original: str) -> dict:
-    segments = segment_text(original)
-    rewritten_segments = [rewrite_segment(s) for s in segments]
-    styled_segments = [apply_style(s) for s in rewritten_segments]
-    bursty_segments = [apply_burstiness(s) for s in styled_segments]
-    pos_adjusted_segments = [adjust_pos(s) for s in bursty_segments]
-    stopworded_segments = [inject_stopwords(s) for s in pos_adjusted_segments]
-    repetition_controlled_segments = [control_repetition(s) for s in stopworded_segments]
-    punctuated_segments = [punctuation_engine(s) for s in repetition_controlled_segments]
-    noisy_segments = [inject_human_noise(s) for s in punctuated_segments]
+    timings: dict[str, float] = {}
 
-    rewritten_text = " ".join(rewritten_segments).strip()
-    styled_text = " ".join(styled_segments).strip()
-    bursty_text = " ".join(bursty_segments).strip()
-    pos_adjusted_text = " ".join(pos_adjusted_segments).strip()
-    stopworded_text = " ".join(stopworded_segments).strip()
-    repetition_controlled_text = " ".join(repetition_controlled_segments).strip()
-    punctuated_text = " ".join(punctuated_segments).strip()
-    noisy_text = " ".join(noisy_segments).strip()
-    readability_text = readability_mixer(noisy_text)
-    reordered_text = reorder_sentences(readability_text)
-    final_text = optimize_perplexity(reordered_text, intensity=0.15)
+    t0 = time.perf_counter()
+    segments = segment_text(original, min_sentences=CHUNK_MIN_SENTENCES, max_sentences=CHUNK_MAX_SENTENCES)
+    timings["segment_ms"] = (time.perf_counter() - t0) * 1000.0
+
+    t0 = time.perf_counter()
+    rewritten_segments = rewrite_segments(segments)
+    timings["rewrite_ms"] = (time.perf_counter() - t0) * 1000.0
+
+    stage_texts: dict[str, str] = {"original": original} if capture_stages else {}
+    if capture_stages:
+        stage_texts["rewritten"] = " ".join(rewritten_segments).strip()
+
+    # `fast` avoids the most coherence-damaging randomness and keeps processing lightweight.
+    current = rewritten_segments
+    if mode in {"balanced", "stealth"}:
+        t0 = time.perf_counter()
+        styled_segments = [apply_style(s) for s in current]
+        timings["style_ms"] = (time.perf_counter() - t0) * 1000.0
+        current = styled_segments
+        if capture_stages:
+            stage_texts["styled"] = " ".join(current).strip()
+
+    if mode == "stealth":
+        t0 = time.perf_counter()
+        bursty_segments = [apply_burstiness(s) for s in current]
+        timings["burstiness_ms"] = (time.perf_counter() - t0) * 1000.0
+        current = bursty_segments
+        if capture_stages:
+            stage_texts["bursty"] = " ".join(current).strip()
+
+        t0 = time.perf_counter()
+        current = [adjust_pos(s) for s in current]
+        current = [inject_stopwords(s) for s in current]
+        current = [control_repetition(s) for s in current]
+        current = [punctuation_engine(s) for s in current]
+        # Typos can make text look "human", but they also look unprofessional; keep them to stealth-only.
+        current = [inject_human_noise(s, intensity=0.25, allow_typos=True) for s in current]
+        timings["refine_ms"] = (time.perf_counter() - t0) * 1000.0
+        noisy_text = " ".join(current).strip()
+        if capture_stages:
+            stage_texts["noisy"] = noisy_text
+
+        t0 = time.perf_counter()
+        readability_text = readability_mixer(noisy_text)
+        reordered_text = reorder_sentences(readability_text)
+        final_text = optimize_perplexity(reordered_text, intensity=0.15)
+        timings["finalize_ms"] = (time.perf_counter() - t0) * 1000.0
+        if capture_stages:
+            stage_texts["readability_mixed"] = readability_text
+            stage_texts["sentence_reordered"] = reordered_text
+    elif mode == "balanced":
+        t0 = time.perf_counter()
+        current = [adjust_pos(s) for s in current]
+        current = [control_repetition(s) for s in current]
+        current = [punctuation_engine(s) for s in current]
+        timings["refine_ms"] = (time.perf_counter() - t0) * 1000.0
+        refined_text = " ".join(current).strip()
+        if capture_stages:
+            stage_texts["refined"] = refined_text
+
+        t0 = time.perf_counter()
+        readability_text = readability_mixer(refined_text)
+        final_text = optimize_perplexity(readability_text, intensity=0.1)
+        timings["finalize_ms"] = (time.perf_counter() - t0) * 1000.0
+        if capture_stages:
+            stage_texts["readability_mixed"] = readability_text
+    else:  # fast
+        t0 = time.perf_counter()
+        rewritten_text = " ".join(current).strip()
+        readability_text = readability_mixer(rewritten_text)
+        final_text = optimize_perplexity(readability_text, intensity=0.08)
+        timings["finalize_ms"] = (time.perf_counter() - t0) * 1000.0
+        if capture_stages:
+            stage_texts["readability_mixed"] = readability_text
 
     original_wc = len(original.split())
     final_wc = len(final_text.split())
-    noisy_wc = len(noisy_text.split())
 
     # Keep final output length aligned with source content.
     if original_wc > 0 and final_wc < int(original_wc * 0.8):
-        if noisy_wc >= int(original_wc * 0.8):
-            final_text = noisy_text
-        else:
-            final_text = original
+        final_text = original
 
-    return {
-        "original": original,
-        "rewritten": rewritten_text,
-        "styled": styled_text,
-        "bursty": bursty_text,
-        "pos_adjusted": pos_adjusted_text,
-        "stopword_injected": stopworded_text,
-        "repetition_controlled": repetition_controlled_text,
-        "punctuation_engine": punctuated_text,
-        "noisy": noisy_text,
-        "readability_mixed": readability_text,
-        "sentence_reordered": reordered_text,
+    out = {
         "final": final_text,
+        "chunk_count": len(segments),
+        "mode": mode,
+        "timings_ms": {k: round(v, 2) for k, v in timings.items()},
     }
+    if capture_stages:
+        out.update(stage_texts)
+    return out
 
 # Main FastAPI application with endpoints for health check, text segmentation, rewriter health, rewrite testing, and humanization. The application uses a Detector instance for AI detection and a T5Rewriter instance for text rewriting, with a warmup function to load the model during startup and a status function to check if the model is loaded and ready.
 @app.get("/health")
@@ -203,23 +261,20 @@ def segment(payload: SegmentRequest) -> dict:
     original = payload.text.strip()
     if not original:
         return {"error": "Input text is empty."}
-    if payload.min_sentences < 1:
-        return {"error": "min_sentences must be >= 1."}
-    if payload.max_sentences < payload.min_sentences:
-        return {"error": "max_sentences must be >= min_sentences."}
 
     paragraphs = split_paragraphs(original)
     sentence_groups = [split_sentences(p) for p in paragraphs]
     chunks = segment_text(
         original,
-        min_sentences=payload.min_sentences,
-        max_sentences=payload.max_sentences,
+        min_sentences=CHUNK_MIN_SENTENCES,
+        max_sentences=CHUNK_MAX_SENTENCES,
     )
 
     return {
         "paragraph_count": len(paragraphs),
         "sentence_count": sum(len(group) for group in sentence_groups),
         "chunk_count": len(chunks),
+        "chunking": {"min_sentences": CHUNK_MIN_SENTENCES, "max_sentences": CHUNK_MAX_SENTENCES},
         "paragraphs": paragraphs,
         "sentences_by_paragraph": sentence_groups,
         "chunks": chunks,
@@ -236,22 +291,19 @@ def rewrite_test(payload: RewriteTestRequest) -> dict:
     original = payload.text.strip()
     if not original:
         return {"error": "Input text is empty."}
-    if payload.min_sentences < 1:
-        return {"error": "min_sentences must be >= 1."}
-    if payload.max_sentences < payload.min_sentences:
-        return {"error": "max_sentences must be >= min_sentences."}
 
     chunks = segment_text(
         original,
-        min_sentences=payload.min_sentences,
-        max_sentences=payload.max_sentences,
+        min_sentences=CHUNK_MIN_SENTENCES,
+        max_sentences=CHUNK_MAX_SENTENCES,
     )
-    rewritten_chunks = [rewrite_segment(chunk) for chunk in chunks]
+    rewritten_chunks = rewrite_segments(chunks)
     styled_chunks = [apply_style(chunk) for chunk in rewritten_chunks]
 
     return {
         "rewriter": get_rewriter_status(),
         "chunk_count": len(chunks),
+        "chunking": {"min_sentences": CHUNK_MIN_SENTENCES, "max_sentences": CHUNK_MAX_SENTENCES},
         "chunks": chunks,
         "rewritten_chunks": rewritten_chunks,
         "styled_chunks": styled_chunks,
@@ -266,7 +318,11 @@ def humanize(payload: HumanizeRequest) -> dict:
     if not original:
         return {"error": "Input text is empty."}
 
-    stages = _run_humanize_pipeline(original)
+    stages = _run_humanize_pipeline(
+        original,
+        mode=payload.mode,
+        capture_stages=False,
+    )
     final_text = stages["final"]
 
     feature_vector = extract_features(final_text)
@@ -292,6 +348,11 @@ def humanize(payload: HumanizeRequest) -> dict:
         "original_text": original,
         "humanized_text": final_text,
         "detector_ai_probability": ai_score,
+        "meta": {
+            "chunk_count": stages.get("chunk_count"),
+            "mode": stages.get("mode"),
+            "timings_ms": stages.get("timings_ms"),
+        },
     }
 
 
@@ -301,7 +362,11 @@ def humanize_debug(payload: HumanizeDebugRequest) -> dict:
     if not original:
         return {"error": "Input text is empty."}
 
-    stages = _run_humanize_pipeline(original)
+    stages = _run_humanize_pipeline(
+        original,
+        mode=payload.mode,
+        capture_stages=True,
+    )
 
     def _stage_info(text: str) -> dict:
         features = extract_features(text)
@@ -312,21 +377,30 @@ def humanize_debug(payload: HumanizeDebugRequest) -> dict:
             "text": text,
         }
 
+    stage_order = [
+        "original",
+        "rewritten",
+        "styled",
+        "refined",
+        "bursty",
+        "noisy",
+        "readability_mixed",
+        "sentence_reordered",
+        "final",
+    ]
+    stage_payload: dict[str, dict] = {}
+    for key in stage_order:
+        value = stages.get(key)
+        if isinstance(value, str) and value.strip():
+            stage_payload[key] = _stage_info(value)
+
     return {
-        "stages": {
-            "original": _stage_info(stages["original"]),
-            "rewritten": _stage_info(stages["rewritten"]),
-            "styled": _stage_info(stages["styled"]),
-            "bursty": _stage_info(stages["bursty"]),
-            "pos_adjusted": _stage_info(stages["pos_adjusted"]),
-            "stopword_injected": _stage_info(stages["stopword_injected"]),
-            "repetition_controlled": _stage_info(stages["repetition_controlled"]),
-            "punctuation_engine": _stage_info(stages["punctuation_engine"]),
-            "noisy": _stage_info(stages["noisy"]),
-            "readability_mixed": _stage_info(stages["readability_mixed"]),
-            "sentence_reordered": _stage_info(stages["sentence_reordered"]),
-            "final": _stage_info(stages["final"]),
-        }
+        "meta": {
+            "chunk_count": stages.get("chunk_count"),
+            "mode": stages.get("mode"),
+            "timings_ms": stages.get("timings_ms"),
+        },
+        "stages": stage_payload,
     }
 
 

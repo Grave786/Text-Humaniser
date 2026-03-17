@@ -17,6 +17,7 @@ const profileUsername = document.getElementById("profile-username");
 const profileEmail = document.getElementById("profile-email");
 const profileHistoryBtn = document.getElementById("profile-history");
 const profileLogs = document.getElementById("profile-logs");
+const modeSelect = document.getElementById("mode-select");
 
 const sessionUser = localStorage.getItem("auth_user");
 const sessionRole = localStorage.getItem("auth_role");
@@ -149,7 +150,13 @@ const handleHumanize = async () => {
 
   setProcessing(true);
 
-  const payload = { text, username: sessionUser };
+  const mode = (modeSelect?.value || "balanced").trim();
+
+  const payload = {
+    text,
+    username: sessionUser,
+    mode,
+  };
   try {
     const res = await fetch(window.apiUrl("/humanize"), {
       method: "POST",
@@ -166,10 +173,19 @@ const handleHumanize = async () => {
 
     outputText.textContent = data.humanized_text;
     showStages(null);
-    showMetrics([
+    const items = [
       `ai: ${data.detector_ai_probability}`,
       `words: ${data.humanized_text.split(/\s+/).filter(Boolean).length}`,
-    ]);
+    ];
+    if (data.meta?.mode) items.push(`mode: ${data.meta.mode}`);
+    if (typeof data.meta?.chunk_count === "number") items.push(`chunks: ${data.meta.chunk_count}`);
+    if (data.meta?.timings_ms) {
+      const t = data.meta.timings_ms;
+      if (typeof t.segment_ms === "number") items.push(`segment: ${Math.round(t.segment_ms)}ms`);
+      if (typeof t.rewrite_ms === "number") items.push(`rewrite: ${Math.round(t.rewrite_ms)}ms`);
+      if (typeof t.finalize_ms === "number") items.push(`finalize: ${Math.round(t.finalize_ms)}ms`);
+    }
+    showMetrics(items);
     setProcessing(false);
   } catch (err) {
     outputWrap.classList.remove("hidden");
