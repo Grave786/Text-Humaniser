@@ -14,9 +14,9 @@
 <!-- Admin panel with user management and scan logs -->
 <body class="min-h-screen bg-gradient-to-br from-rose-50 via-amber-50 to-sky-100 text-slate-900">
   <header class="sticky top-0 z-20 w-full bg-gradient-to-r from-indigo-900 via-slate-900 to-emerald-900 text-slate-900 shadow-xl">
-    <div class="flex w-full items-center justify-between gap-6 px-8 py-5">
+    <div class="flex w-full items-center justify-between gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-5 lg:px-8">
       <div class="text-xl font-semibold text-emerald-300">Admin Panel</div>
-      <nav class="flex items-center gap-4 text-sm font-medium text-slate-100">
+      <nav class="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-100 sm:gap-4">
         <a class="hover:text-white" href="#create">Create User</a>
         <a class="hover:text-white" href="#users">Users</a>
         <a class="hover:text-white" href="#logs">Logs</a>
@@ -32,8 +32,8 @@
     </div>
   </header>
 <!-- Main content with user creation form, user list, and scan logs -->
-  <main class="grid w-full gap-6 px-8 py-8">
-    <section id="create" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-8 shadow-2xl backdrop-blur">
+  <main class="grid w-full gap-6 px-4 py-8 sm:px-6 lg:px-8">
+    <section id="create" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-5 shadow-2xl backdrop-blur sm:p-8">
       <h2 class="text-2xl font-semibold">Create User</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-4">
         <div>
@@ -62,7 +62,7 @@
       </div>
     </section>
 <!-- User list with edit and delete options -->
-    <section id="users" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-8 shadow-2xl backdrop-blur">
+    <section id="users" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-5 shadow-2xl backdrop-blur sm:p-8">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <h2 class="text-2xl font-semibold">Users</h2>
         <div class="text-sm text-slate-600">Click a user to edit, view logs, or delete.</div>
@@ -84,7 +84,7 @@
       </div>
     </section>
 <!-- Scan logs with details and pagination -->
-    <section id="logs" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-8 shadow-2xl backdrop-blur">
+    <section id="logs" class="rounded-3xl border border-indigo-100/80 bg-indigo-50/80 p-5 shadow-2xl backdrop-blur sm:p-8">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <h2 class="text-2xl font-semibold">Scan Logs</h2>
         <div class="text-sm text-slate-600" id="logs-title">Showing latest 50 scans</div>
@@ -199,7 +199,6 @@
   <script src="js/admin.js"></script>
 </body>
 </html>
-
 
 
 
