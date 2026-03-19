@@ -14,6 +14,7 @@ torch==2.6.0
 spacy==3.8.7
 
 sentencepiece
+tiktoken
 
 
 python-multipart

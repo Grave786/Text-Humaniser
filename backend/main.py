@@ -142,6 +142,10 @@ def _run_humanize_pipeline(
     if mode not in {"fast", "balanced", "stealth"}:
         mode = "balanced"
 
+    rewriter_status = get_rewriter_status()
+    rewriter_loaded = bool(rewriter_status.get("loaded"))
+    force_style = not rewriter_loaded
+
     timings: dict[str, float] = {}
 
     t0 = time.perf_counter()
@@ -160,7 +164,7 @@ def _run_humanize_pipeline(
     current = rewritten_segments
     if mode in {"balanced", "stealth"}:
         t0 = time.perf_counter()
-        styled_segments = [apply_style(s) for s in current]
+        styled_segments = [apply_style(s, force=force_style) for s in current]
         timings["style_ms"] = (time.perf_counter() - t0) * 1000.0
         current = styled_segments
         if capture_stages:
@@ -231,6 +235,11 @@ def _run_humanize_pipeline(
         "final": final_text,
         "chunk_count": len(segments),
         "mode": mode,
+        "rewriter": {
+            "loaded": rewriter_loaded,
+            "model_name": rewriter_status.get("model_name"),
+            "load_error": rewriter_status.get("load_error"),
+        },
         "timings_ms": {k: round(v, 2) for k, v in timings.items()},
     }
     if capture_stages:
@@ -352,6 +361,7 @@ def humanize(payload: HumanizeRequest) -> dict:
         "meta": {
             "chunk_count": stages.get("chunk_count"),
             "mode": stages.get("mode"),
+            "rewriter": stages.get("rewriter"),
             "timings_ms": stages.get("timings_ms"),
         },
     }

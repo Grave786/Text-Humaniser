@@ -179,6 +179,11 @@ const handleHumanize = async () => {
     ];
     if (data.meta?.mode) items.push(`mode: ${data.meta.mode}`);
     if (typeof data.meta?.chunk_count === "number") items.push(`chunks: ${data.meta.chunk_count}`);
+    if (data.meta?.rewriter) {
+      const r = data.meta.rewriter;
+      if (r.loaded === true) items.push("rewriter: on");
+      else if (r.loaded === false) items.push("rewriter: off (fallback)");
+    }
     if (data.meta?.timings_ms) {
       const t = data.meta.timings_ms;
       if (typeof t.segment_ms === "number") items.push(`segment: ${Math.round(t.segment_ms)}ms`);

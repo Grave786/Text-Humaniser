@@ -1,5 +1,6 @@
 import random
 import re
+import hashlib
 from typing import Dict, List, Tuple
 from functools import lru_cache
 
@@ -77,6 +78,11 @@ LOWERABLE_START_WORDS = {
     "she",
     "there",
 }
+
+def _seeded_rng(text: str) -> random.Random:
+    digest = hashlib.sha256(text.encode("utf-8", "ignore")).digest()
+    seed = int.from_bytes(digest[:8], byteorder="big", signed=False)
+    return random.Random(seed)
 
 
 @lru_cache(maxsize=1)
@@ -346,8 +352,51 @@ def style_transform(text: str) -> str:
     text = merge_sentences(text)
     return text
 
+def style_transform_force(text: str) -> str:
+    rng = _seeded_rng(text)
+
+    out = apply_contractions(text)
+    out = casualize(out)
+    out = transform_voice(out)
+    out = restructure_sentences(out)
+    out = syntax_transform_spacy(out)
+
+    sentences = _split_sentences(out)
+    if not sentences:
+        return out
+
+    # Guarantee at least one visible "humanization" when upstream rewriting is unavailable.
+    # Keep it conservative: add at most one small prefix to avoid over-editing.
+    if len(sentences) == 1:
+        if not re.match(r"^(Honestly|To be fair|In practice|At the end of the day)\b", sentences[0], re.IGNORECASE):
+            sentences[0] = f"{rng.choice(OPENERS)} {sentences[0]}"
+        return _join_sentences(sentences)
+
+    idx = 1
+    prefix_kind = rng.choice(["discourse", "filler", "hedge", "connector"])
+    if prefix_kind == "connector":
+        connector = rng.choice(CONNECTORS).capitalize()
+        if not re.match(r"^(And|But|So|Because)\b", sentences[idx], re.IGNORECASE):
+            sentences[idx] = f"{connector}, {_lower_start_if_safe(sentences[idx])}"
+    elif prefix_kind == "discourse":
+        marker = rng.choice(DISCOURSE_MARKERS)
+        if not re.match(r"^(Also|Anyway|Plus|On top of that)\b", sentences[idx], re.IGNORECASE):
+            sentences[idx] = f"{marker}, {_lower_start_if_safe(sentences[idx])}"
+    elif prefix_kind == "filler":
+        filler = rng.choice(FILLERS).capitalize()
+        if not re.match(r"^(You know|To be honest|Kind of|Basically)\b", sentences[idx], re.IGNORECASE):
+            sentences[idx] = f"{filler}, {_lower_start_if_safe(sentences[idx])}"
+    else:  # hedge
+        hedge = rng.choice(HEDGES)
+        if not re.match(r"^(I think|maybe|in my view|it seems)\b", sentences[idx], re.IGNORECASE):
+            sentences[idx] = f"{hedge}, {_lower_start_if_safe(sentences[idx])}"
+
+    return _join_sentences(sentences)
+
 # Public function to apply style transformation to the input text, with error handling to ensure that any issues during the transformation process do not cause the application to fail and instead return the original text.
-def apply_style(text: str) -> str:
+def apply_style(text: str, *, force: bool = False) -> str:
     if not text:
         return text
+    if force:
+        return style_transform_force(text)
     return style_transform(text)
