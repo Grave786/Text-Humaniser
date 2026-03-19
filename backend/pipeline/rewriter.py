@@ -35,9 +35,14 @@ class RewriteStage:
 class TwoStageRewriter:
     def __init__(self, stage1_model: str, stage2_model: str) -> None:
         self.device = "cpu"
-        self.stage1 = RewriteStage(model_name=stage1_model, prompt_mode="raw")
-        # "t5-base" is not instruction tuned; a classic task prefix tends to behave better.
-        self.stage2 = RewriteStage(model_name=stage2_model, prompt_mode="t5_paraphrase")
+        self.stage1 = RewriteStage(
+            model_name=stage1_model,
+            prompt_mode=self._infer_prompt_mode(stage1_model, default="raw"),
+        )
+        self.stage2 = RewriteStage(
+            model_name=stage2_model,
+            prompt_mode=self._infer_prompt_mode(stage2_model, default="t5_paraphrase"),
+        )
 # T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
     def _load_stage(self, stage: RewriteStage) -> None:
         if stage.loaded:
@@ -67,6 +72,13 @@ class TwoStageRewriter:
             stage.model = None
             stage.tokenizer = None
 # T5-based rewriter class to handle paraphrasing of text segments using a specified T5 model. The class includes methods for loading the model and tokenizer, as well as a method for rewriting text segments while applying safety guards to prevent excessive content collapse.
+    @staticmethod
+    def _infer_prompt_mode(model_name: str, default: str) -> str:
+        name = (model_name or "").strip().lower()
+        if "t5" in name:
+            return "t5_paraphrase"
+        return default
+
     def _build_prompt(self, stage: RewriteStage, text: str) -> str:
         if stage.prompt_mode == "t5_paraphrase":
             return f"paraphrase: {text}"
@@ -148,16 +160,16 @@ class TwoStageRewriter:
 
             with torch.no_grad():
                 outputs = stage.model.generate(
-                    input_ids=inputs["input_ids"],
-                    attention_mask=inputs.get("attention_mask"),
-                    min_new_tokens=min_new_tokens,
-                    max_new_tokens=max_new_tokens,
-                    num_beams=4,
-                    do_sample=True,
-                    temperature=0.85 + (0.1 * stage_strength),
-                    top_p=0.92,
-                    early_stopping=True,
-                )
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs.get("attention_mask"),
+                min_new_tokens=min_new_tokens,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                temperature=0.95,
+                top_p=0.9,
+                top_k=50,
+                repetition_penalty=1.2,
+               )
 
             rewritten = stage.tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
             return rewritten if rewritten else text
@@ -248,9 +260,9 @@ class TwoStageRewriter:
 # Control repetition by removing immediate repeated words and short phrases, ensuring that the resulting text is more concise and avoids unnecessary redundancy while maintaining coherence.
 _STAGE1_MODEL_NAME = os.getenv(
     "REWRITER_STAGE1_MODEL",
-    os.getenv("T5_MODEL_NAME", "tuner007/pegasus_paraphrase"),
+    os.getenv("T5_MODEL_NAME", "Vamsi/T5_Paraphrase_Paws"),
 )
-_STAGE2_MODEL_NAME = os.getenv("REWRITER_STAGE2_MODEL", "t5-base")
+_STAGE2_MODEL_NAME = os.getenv("REWRITER_STAGE2_MODEL", "Vamsi/T5_Paraphrase_Paws")
 
 _rewriter = TwoStageRewriter(
     stage1_model=_STAGE1_MODEL_NAME,
