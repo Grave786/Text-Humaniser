@@ -43,13 +43,21 @@
         <label class="text-sm text-slate-600" for="input-text">Paste your text</label>
         <textarea id="input-text" class="min-h-[180px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:outline-none" placeholder="Drop raw text here..."></textarea>
 
-        <div class="grid gap-3 md:grid-cols-1">
+        <div class="grid gap-3 md:grid-cols-2">
           <div>
             <label class="text-sm text-slate-600" for="mode-select">Mode</label>
             <select id="mode-select" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">
               <option value="balanced" selected>Balanced (best quality)</option>
               <option value="fast">Fast (long text)</option>
               <option value="stealth">Stealth (more random)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm text-slate-600" for="passes-select">Passes</label>
+            <select id="passes-select" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">
+              <option value="1">1 pass</option>
+              <option value="2">2 passes</option>
+              <option value="3" selected>3 passes</option>
             </select>
           </div>
         </div>

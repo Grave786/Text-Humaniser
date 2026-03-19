@@ -57,6 +57,7 @@ app.add_middleware(
 detector = Detector(model_path="models/xgb_model_.pkl")
 CHUNK_MIN_SENTENCES = int(os.getenv("CHUNK_MIN_SENTENCES", "2") or "2")
 CHUNK_MAX_SENTENCES = int(os.getenv("CHUNK_MAX_SENTENCES", "3") or "3")
+HUMANIZE_PASSES_DEFAULT = int(os.getenv("HUMANIZE_PASSES_DEFAULT", "1") or "1")
 
 # Load the T5 model during API startup to avoid first-request delay.
 @app.on_event("startup")
@@ -78,6 +79,9 @@ class HumanizeRequest(BaseModel):
     # `balanced`: default quality mode
     # `stealth`: includes aggressive randomness (may reduce readability)
     mode: str = "balanced"
+    # Re-run the humanization pipeline multiple times by feeding output back as input.
+    # Clamp to a small range to avoid excessive latency.
+    passes: int = HUMANIZE_PASSES_DEFAULT
 
 # Data model for the /segment endpoint, which includes the input text and parameters for minimum and maximum sentences per chunk. This model is used to validate the input for the segmentation endpoint and ensure that the parameters are within acceptable ranges.
 class SegmentRequest(BaseModel):
@@ -328,12 +332,29 @@ def humanize(payload: HumanizeRequest) -> dict:
     if not original:
         return {"error": "Input text is empty."}
 
-    stages = _run_humanize_pipeline(
-        original,
-        mode=payload.mode,
-        capture_stages=False,
-    )
-    final_text = stages["final"]
+    passes = int(payload.passes or 1)
+    if passes < 1:
+        passes = 1
+    if passes > 3:
+        passes = 3
+
+    total_timings: dict[str, float] = {"segment_ms": 0.0, "rewrite_ms": 0.0, "style_ms": 0.0, "refine_ms": 0.0, "finalize_ms": 0.0}
+    current_text = original
+    last_stages: dict | None = None
+    for _ in range(passes):
+        last_stages = _run_humanize_pipeline(
+            current_text,
+            mode=payload.mode,
+            capture_stages=False,
+        )
+        current_text = last_stages["final"]
+        timings = last_stages.get("timings_ms") or {}
+        for key in total_timings:
+            if isinstance(timings.get(key), (int, float)):
+                total_timings[key] += float(timings[key])
+
+    final_text = current_text
+    stages = last_stages or {}
 
     feature_vector = extract_features(final_text)
     ai_score = detector.predict_probability(feature_vector)
@@ -362,7 +383,8 @@ def humanize(payload: HumanizeRequest) -> dict:
             "chunk_count": stages.get("chunk_count"),
             "mode": stages.get("mode"),
             "rewriter": stages.get("rewriter"),
-            "timings_ms": stages.get("timings_ms"),
+            "passes": passes,
+            "timings_ms": {k: round(v, 2) for k, v in total_timings.items()},
         },
     }
 

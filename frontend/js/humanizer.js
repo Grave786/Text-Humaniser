@@ -18,6 +18,7 @@ const profileEmail = document.getElementById("profile-email");
 const profileHistoryBtn = document.getElementById("profile-history");
 const profileLogs = document.getElementById("profile-logs");
 const modeSelect = document.getElementById("mode-select");
+const passesSelect = document.getElementById("passes-select");
 
 const sessionUser = localStorage.getItem("auth_user");
 const sessionRole = localStorage.getItem("auth_role");
@@ -151,11 +152,14 @@ const handleHumanize = async () => {
   setProcessing(true);
 
   const mode = (modeSelect?.value || "balanced").trim();
+  const passesRaw = Number.parseInt((passesSelect?.value || "3").trim(), 10);
+  const passes = Number.isFinite(passesRaw) ? Math.min(3, Math.max(1, passesRaw)) : 3;
 
   const payload = {
     text,
     username: sessionUser,
     mode,
+    passes,
   };
   try {
     const res = await fetch(window.apiUrl("/humanize"), {
@@ -184,6 +188,7 @@ const handleHumanize = async () => {
       if (r.loaded === true) items.push("rewriter: on");
       else if (r.loaded === false) items.push("rewriter: off (fallback)");
     }
+    if (typeof data.meta?.passes === "number") items.push(`passes: ${data.meta.passes}`);
     if (data.meta?.timings_ms) {
       const t = data.meta.timings_ms;
       if (typeof t.segment_ms === "number") items.push(`segment: ${Math.round(t.segment_ms)}ms`);
