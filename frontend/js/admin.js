@@ -4,6 +4,15 @@ const createStatus = document.getElementById("create-status");
 const usersBody = document.getElementById("users-body");
 const logsBody = document.getElementById("logs-body");
 const logsTitle = document.getElementById("logs-title");
+const adminUsernameEl = document.getElementById("admin-username");
+const statUsersEl = document.getElementById("stat-users");
+const statAdminsEl = document.getElementById("stat-admins");
+const statLogsEl = document.getElementById("stat-logs");
+const statLastScanEl = document.getElementById("stat-last-scan");
+const usersCountEl = document.getElementById("users-count");
+const logsCountEl = document.getElementById("logs-count");
+const userSearchEl = document.getElementById("user-search");
+const logSearchEl = document.getElementById("log-search");
 
 const userModal = document.getElementById("user-modal");
 const closeModalBtn = document.getElementById("close-modal");
@@ -31,6 +40,8 @@ const profileHistoryBtn = document.getElementById("profile-history");
 const profileLogs = document.getElementById("profile-logs");
 
 let selectedUser = null;
+let allUsers = [];
+let allLogs = [];
 
 const role = localStorage.getItem("auth_role");
 if (role !== "admin") {
@@ -44,6 +55,92 @@ const formatDate = (value) => {
     return new Date(value).toLocaleString();
   } catch {
     return value;
+  }
+};
+
+const normalize = (value) => String(value || "").toLowerCase();
+
+const setText = (el, value) => {
+  if (!el) return;
+  el.textContent = value;
+};
+
+const updateUserStats = () => {
+  setText(statUsersEl, String(allUsers.length));
+  setText(statAdminsEl, String(allUsers.filter((u) => (u?.role || "") === "admin").length));
+};
+
+const updateLogStats = () => {
+  setText(statLogsEl, String(allLogs.length));
+  const last = allLogs[0]?.created_at;
+  setText(statLastScanEl, last ? formatDate(last) : "—");
+};
+
+const renderUsers = (items) => {
+  usersBody.innerHTML = "";
+  const list = Array.isArray(items) ? items : [];
+  list.forEach((u) => {
+    const row = document.createElement("tr");
+    row.className = "cursor-pointer hover:bg-slate-50";
+    row.innerHTML = `
+      <td class="px-4 py-3 font-semibold text-slate-900">${u.username || ""}</td>
+      <td class="px-4 py-3 text-slate-700">${u.email || ""}</td>
+      <td class="px-4 py-3 text-slate-700">${u.role || ""}</td>
+      <td class="px-4 py-3 text-slate-700">${formatDate(u.created_at)}</td>
+      <td class="px-4 py-3">
+        <button class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-800 shadow-sm">Manage</button>
+      </td>
+    `;
+    row.addEventListener("click", () => openModal(u));
+    usersBody.appendChild(row);
+  });
+};
+
+const applyUserFilter = () => {
+  const q = normalize(userSearchEl?.value || "");
+  const filtered = q
+    ? allUsers.filter((u) => normalize(u?.username).includes(q) || normalize(u?.email).includes(q))
+    : allUsers;
+  renderUsers(filtered);
+  if (usersCountEl) {
+    usersCountEl.textContent = q ? `${filtered.length}/${allUsers.length}` : String(allUsers.length);
+  }
+};
+
+const renderLogs = (items) => {
+  logsBody.innerHTML = "";
+  const list = Array.isArray(items) ? items : [];
+  list.forEach((s) => {
+    const row = document.createElement("tr");
+    row.className = "cursor-pointer hover:bg-slate-50";
+    row.innerHTML = `
+      <td class="px-4 py-3 text-slate-700">${formatDate(s.created_at)}</td>
+      <td class="px-4 py-3 text-slate-700">${s.username || ""}</td>
+      <td class="px-4 py-3 text-slate-700">${s.detector_ai_probability ?? ""}</td>
+      <td class="px-4 py-3 text-slate-700 max-w-[220px] truncate">${(s.original_text || "").slice(0, 160)}</td>
+      <td class="px-4 py-3 text-slate-700 max-w-[220px] truncate">${(s.humanized_text || "").slice(0, 160)}</td>
+    `;
+    row.addEventListener("click", () => openLogModal(s));
+    logsBody.appendChild(row);
+  });
+};
+
+const applyLogFilter = () => {
+  const q = normalize(logSearchEl?.value || "");
+  const filtered = q
+    ? allLogs.filter((s) => {
+        return (
+          normalize(s?.username).includes(q) ||
+          normalize(s?.detector_ai_probability).includes(q) ||
+          normalize(formatDate(s?.created_at)).includes(q) ||
+          normalize(s?.original_text).includes(q) ||
+          normalize(s?.humanized_text).includes(q)
+        );
+      })
+    : allLogs;
+  renderLogs(filtered);
+  if (logsCountEl) {
+    logsCountEl.textContent = q ? `${filtered.length}/${allLogs.length}` : String(allLogs.length);
   }
 };
 
@@ -145,26 +242,13 @@ const loadUserLogs = async () => {
 const loadUsers = async () => {
   const res = await fetch(window.apiUrl("/admin/users"));
   const data = await res.json();
-  usersBody.innerHTML = "";
   if (data.error) {
     usersBody.innerHTML = `<tr><td class="px-4 py-3" colspan="5">${data.error}</td></tr>`;
     return;
   }
-  data.items.forEach((u) => {
-    const row = document.createElement("tr");
-    row.className = "cursor-pointer hover:bg-indigo-50";
-    row.innerHTML = `
-      <td class="px-4 py-3 font-semibold text-slate-900">${u.username || ""}</td>
-      <td class="px-4 py-3">${u.email || ""}</td>
-      <td class="px-4 py-3">${u.role || ""}</td>
-      <td class="px-4 py-3">${formatDate(u.created_at)}</td>
-      <td class="px-4 py-3">
-        <button class="rounded-full border border-indigo-100/80 bg-indigo-50 px-3 py-1 text-xs font-semibold text-slate-900">Manage</button>
-      </td>
-    `;
-    row.addEventListener("click", () => openModal(u));
-    usersBody.appendChild(row);
-  });
+  allUsers = Array.isArray(data.items) ? data.items : [];
+  updateUserStats();
+  applyUserFilter();
 };
 
 const loadLogs = async (username = null) => {
@@ -173,25 +257,14 @@ const loadLogs = async (username = null) => {
     : window.apiUrl("/admin/scans");
   const res = await fetch(url);
   const data = await res.json();
-  logsBody.innerHTML = "";
   logsTitle.textContent = username ? `Logs for ${username}` : "Showing latest 50 scans";
   if (data.error) {
     logsBody.innerHTML = `<tr><td class="px-4 py-3" colspan="5">${data.error}</td></tr>`;
     return;
   }
-  data.items.forEach((s) => {
-    const row = document.createElement("tr");
-    row.className = "cursor-pointer hover:bg-indigo-50";
-    row.innerHTML = `
-      <td class="px-4 py-3">${formatDate(s.created_at)}</td>
-      <td class="px-4 py-3">${s.username || ""}</td>
-      <td class="px-4 py-3">${s.detector_ai_probability ?? ""}</td>
-      <td class="px-4 py-3">${(s.original_text || "").slice(0, 80)}</td>
-      <td class="px-4 py-3">${(s.humanized_text || "").slice(0, 80)}</td>
-    `;
-    row.addEventListener("click", () => openLogModal(s));
-    logsBody.appendChild(row);
-  });
+  allLogs = Array.isArray(data.items) ? data.items : [];
+  updateLogStats();
+  applyLogFilter();
 };
 
 const handleCreate = async () => {
@@ -284,6 +357,17 @@ profileBtn.addEventListener("click", () => {
 });
 closeProfileBtn.addEventListener("click", closeProfile);
 profileHistoryBtn.addEventListener("click", loadUserLogs);
+
+if (userSearchEl) {
+  userSearchEl.addEventListener("input", applyUserFilter);
+}
+if (logSearchEl) {
+  logSearchEl.addEventListener("input", applyLogFilter);
+}
+
+if (adminUsernameEl) {
+  adminUsernameEl.textContent = sessionUser || "";
+}
 
 loadUsers();
 loadLogs();

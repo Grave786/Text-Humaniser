@@ -1,6 +1,7 @@
 const loginModal = document.getElementById("login-modal");
 const openLoginBtn = document.getElementById("open-login");
 const openLoginCta = document.getElementById("open-login-cta");
+const openLoginCta2 = document.getElementById("open-login-cta-2");
 const closeLoginBtn = document.getElementById("close-login");
 const openHumanizerBtn = document.getElementById("open-humanizer");
 
@@ -47,5 +48,8 @@ window.addEventListener("message", (event) => {
 
 openLoginBtn.addEventListener("click", openLogin);
 openLoginCta.addEventListener("click", openLogin);
+if (openLoginCta2) {
+  openLoginCta2.addEventListener("click", openLogin);
+}
 closeLoginBtn.addEventListener("click", closeLogin);
 openHumanizerBtn.addEventListener("click", openHumanizer);

@@ -10,94 +10,304 @@
     body { font-family: "Outfit", system-ui, sans-serif; }
     h1, h2, h3 { font-family: "Playfair Display", serif; }
     html { scroll-behavior: smooth; }
+    @keyframes floaty { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }
+    .float-slow { animation: floaty 10s ease-in-out infinite; }
+    .float-slower { animation: floaty 16s ease-in-out infinite; }
+    @keyframes glowPulse { 0%,100% { opacity: .55 } 50% { opacity: .95 } }
+    .glow-pulse { animation: glowPulse 4.8s ease-in-out infinite; }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -left-28 -top-28 h-80 w-80 rounded-full bg-indigo-300/35 blur-3xl float-slower"></div>
+    <div class="absolute -right-24 top-24 h-72 w-72 rounded-full bg-emerald-300/25 blur-3xl float-slow"></div>
+    <div class="absolute left-1/3 top-[28rem] h-96 w-96 rounded-full bg-sky-300/20 blur-3xl float-slower"></div>
+  </div>
   <header class="sticky top-0 z-20 w-full bg-slate-950 text-slate-100 shadow-xl">
-    <div class="flex w-full items-center justify-between gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-5 lg:px-8">
-      <div class="text-xl font-semibold text-emerald-300">Humanizer</div>
+    <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-5 lg:px-8">
+      <div class="flex items-center gap-3">
+        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 ring-1 ring-white/20">
+          <svg class="h-5 w-5 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 7h16"></path>
+            <path d="M4 12h10"></path>
+            <path d="M4 17h16"></path>
+          </svg>
+        </div>
+        <div class="text-xl font-semibold text-emerald-300">Humanizer</div>
+      </div>
       <nav class="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-200 sm:gap-6">
         <a class="hover:text-white" href="#home">Home</a>
         <a class="hover:text-white" href="#features">Features</a>
+        <a class="hover:text-white" href="#how">How it works</a>
+        <a class="hover:text-white" href="#security">Security</a>
         <a class="hover:text-white" href="#pricing">Pricing</a>
         <a class="hover:text-white" href="#testimonials">Testimonials</a>
         <a class="hover:text-white" href="#stats">Stats</a>
-        <a class="hover:text-white" href="#" id="open-login">Login</a>
+        <a class="hover:text-white" href="#faq">FAQ</a>
+        <a class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-amber-500/20 focus:outline-none focus:ring-2 focus:ring-amber-200/40" href="#" id="open-login">Login</a>
       </nav>
     </div>
   </header>
 
-  <main class="grid w-full gap-10 px-4 pb-10 pt-8 sm:px-6 sm:pt-10 lg:px-8">
-    <section id="home" class="rounded-3xl border border-white/60 bg-white/90 p-6 shadow-2xl backdrop-blur sm:p-10 lg:p-12">
-      <span class="inline-flex rounded-full bg-emerald-100 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">Secure workspace</span>
-      <h1 class="mt-6 text-4xl font-semibold text-slate-900">Transform AI drafts into human-first copy with confidence.</h1>
-      <p class="mt-4 max-w-2xl text-base text-slate-600">Copyscape Humanizer reshapes tone, cadence, and originality while keeping your message intact. Every rewrite stays inside your own stack with admin-controlled access.</p>
-      <div class="mt-6 flex flex-wrap gap-4">
-        <button id="open-login-cta" class="rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-6 py-3 text-sm font-semibold text-white shadow-lg">Login to Humanizer</button>
-        <button id="open-humanizer" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow">Go to Workspace</button>
+  <main class="mx-auto grid w-full max-w-7xl gap-10 px-4 pb-10 pt-8 sm:px-6 sm:pt-10 lg:px-8">
+    <section id="home" class="relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur sm:p-10 lg:p-12">
+      <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-emerald-400/10"></div>
+      <div class="absolute inset-0 opacity-70 [background:radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.20),transparent_40%),radial-gradient(circle_at_85%_30%,rgba(16,185,129,0.18),transparent_42%),radial-gradient(circle_at_50%_80%,rgba(56,189,248,0.16),transparent_45%)] glow-pulse"></div>
+      <div class="relative grid gap-8 lg:grid-cols-12 lg:items-center">
+        <div class="lg:col-span-7">
+          <span class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-300 shadow">
+            <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
+            Private workspace
+          </span>
+          <h1 class="mt-6 text-4xl font-semibold text-slate-900 sm:text-5xl">Make AI drafts feel human&mdash;without losing your meaning.</h1>
+          <p class="mt-4 max-w-2xl text-base text-slate-600">Humanizer reshapes tone, cadence, and originality while keeping your message intact. Runs with admin-controlled access and audit-friendly history.</p>
+          <div class="mt-6 flex flex-wrap gap-4">
+            <button id="open-login-cta" class="rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-amber-500/20 focus:outline-none focus:ring-2 focus:ring-amber-200/40" type="button">Login to Humanizer</button>
+            <button id="open-humanizer" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-300/40" type="button">Go to Workspace</button>
+          </div>
+          <div class="mt-6 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Modes</div>
+              <div class="mt-1 text-sm text-slate-700">Balanced, Fast, Stealth</div>
+            </div>
+            <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Multi-pass</div>
+              <div class="mt-1 text-sm text-slate-700">1-3 rewrite passes</div>
+            </div>
+            <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">History</div>
+              <div class="mt-1 text-sm text-slate-700">Recent logs per user</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5">
+          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500/25 via-white/10 to-emerald-400/20 p-[1px] shadow-2xl">
+            <div class="rounded-3xl border border-white/60 bg-white/80 p-6 backdrop-blur">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Preview</div>
+                  <div class="mt-1 text-lg font-semibold text-slate-900">Before -&gt; after rewrite</div>
+                </div>
+                <span class="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+                  <span class="h-2 w-2 animate-pulse rounded-full bg-indigo-500"></span>
+                  Live
+                </span>
+              </div>
+              <div class="mt-5 space-y-3">
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div class="text-xs font-semibold text-slate-500">Input</div>
+                  <div class="mt-2 text-sm text-slate-700">“We built this tool to help teams refine AI drafts into publish-ready content.”</div>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div class="text-xs font-semibold text-slate-500">Humanized</div>
+                  <div class="mt-2 text-sm text-slate-700">“This tool helps teams polish AI drafts into natural, publish-ready writing—fast.”</div>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <span class="rounded-full bg-slate-950/90 px-3 py-1 text-xs font-semibold text-white shadow-sm ring-1 ring-white/10">ai: 0.12</span>
+                  <span class="rounded-full bg-slate-950/90 px-3 py-1 text-xs font-semibold text-white shadow-sm ring-1 ring-white/10">words: 18</span>
+                  <span class="rounded-full bg-slate-950/90 px-3 py-1 text-xs font-semibold text-white shadow-sm ring-1 ring-white/10">mode: balanced</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-3 gap-3">
+            <div class="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur">
+              <div class="text-2xl font-semibold text-sky-700">11</div>
+              <div class="text-xs text-slate-600">stages</div>
+            </div>
+            <div class="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur">
+              <div class="text-2xl font-semibold text-emerald-700">3</div>
+              <div class="text-xs text-slate-600">modes</div>
+            </div>
+            <div class="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur">
+              <div class="text-2xl font-semibold text-indigo-700">50</div>
+              <div class="text-xs text-slate-600">logs</div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <section id="features" class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl sm:p-8 lg:p-10">
-      <h2 class="text-2xl font-semibold">Feature highlights</h2>
-      <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-          <h3 class="font-semibold">Real-time pipeline</h3>
-          <p class="mt-1 text-sm text-slate-600">Track stage-by-stage rewrites with optional debugging views.</p>
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 class="text-2xl font-semibold">Feature highlights</h2>
+          <p class="mt-2 max-w-2xl text-sm text-slate-600">Built for teams that need predictable rewrites, traceable history, and a polished writing experience.</p>
         </div>
-        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-          <h3 class="font-semibold">Secure storage</h3>
-          <p class="mt-1 text-sm text-slate-600">Every scan is logged to your MongoDB for audit and review.</p>
+        <a class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-300/40" href="#pricing">
+          View plans
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M5 12h14"></path>
+            <path d="M13 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+      <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <h3 class="font-semibold">Stage-ready pipeline</h3>
+          <p class="mt-2 text-sm text-slate-600">Humanize text with clear metrics and optional stage views for debugging.</p>
         </div>
-        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-          <h3 class="font-semibold">Admin-only accounts</h3>
-          <p class="mt-1 text-sm text-slate-600">No self-signups; access is curated by administrators.</p>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <h3 class="font-semibold">Multi-mode control</h3>
+          <p class="mt-2 text-sm text-slate-600">Balanced for quality, Fast for longer drafts, Stealth for more variation.</p>
         </div>
-        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-          <h3 class="font-semibold">Consistent output</h3>
-          <p class="mt-1 text-sm text-slate-600">Control tone and burstiness with stable, repeatable results.</p>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <h3 class="font-semibold">Admin-only access</h3>
+          <p class="mt-2 text-sm text-slate-600">No self-signups; admins provision accounts and control roles.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <h3 class="font-semibold">Audit-friendly history</h3>
+          <p class="mt-2 text-sm text-slate-600">Review up to the last 50 humanizations per user in the profile view.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <h3 class="font-semibold">Copy-ready output</h3>
+          <p class="mt-2 text-sm text-slate-600">Clean formatting, word counts, and one-click copy to clipboard.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <h3 class="font-semibold">Consistent results</h3>
+          <p class="mt-2 text-sm text-slate-600">Settings-driven workflow helps teams standardize quality and tone.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl sm:p-8 lg:p-10">
+      <h2 class="text-2xl font-semibold">How it works</h2>
+      <p class="mt-2 max-w-3xl text-sm text-slate-600">A simple flow designed to be fast for writers and traceable for admins.</p>
+      <div class="mt-6 grid gap-4 lg:grid-cols-3">
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 1</div>
+          <h3 class="mt-2 font-semibold">Paste your draft</h3>
+          <p class="mt-2 text-sm text-slate-600">Drop text into the workspace and pick a mode.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 2</div>
+          <h3 class="mt-2 font-semibold">Humanize in passes</h3>
+          <p class="mt-2 text-sm text-slate-600">Run 1-3 passes depending on how different you want the rewrite.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 3</div>
+          <h3 class="mt-2 font-semibold">Review &amp; copy</h3>
+          <p class="mt-2 text-sm text-slate-600">Check metrics, skim output, then copy and publish.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl sm:p-8 lg:p-10">
+      <div class="grid gap-6 lg:grid-cols-12 lg:items-center">
+        <div class="lg:col-span-7">
+          <h2 class="text-2xl font-semibold">Security &amp; privacy</h2>
+          <p class="mt-2 max-w-3xl text-sm text-slate-600">Designed for organizations that need control: locked-down access, clear ownership, and traceable activity.</p>
+          <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+              <h3 class="font-semibold">Admin-controlled accounts</h3>
+              <p class="mt-2 text-sm text-slate-600">No public registration. Admins provision users and roles.</p>
+            </div>
+            <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+              <h3 class="font-semibold">Audit-friendly logs</h3>
+              <p class="mt-2 text-sm text-slate-600">Recent runs can be stored to support review and accountability.</p>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-5">
+          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-400/20 via-white/10 to-indigo-500/20 p-[1px] shadow-2xl">
+            <div class="rounded-3xl border border-white/60 bg-white/80 p-6 backdrop-blur">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Policy-ready</div>
+              <h3 class="mt-2 text-lg font-semibold text-slate-900">Keep decisions consistent</h3>
+              <p class="mt-2 text-sm text-slate-600">A settings-driven workflow helps teams standardize what “humanized” means.</p>
+              <div class="mt-5 grid gap-3">
+                <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
+                  <span class="text-slate-700">Role-based access</span>
+                  <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100">Enabled</span>
+                </div>
+                <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
+                  <span class="text-slate-700">Run history</span>
+                  <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100">Tracked</span>
+                </div>
+                <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
+                  <span class="text-slate-700">Private stack</span>
+                  <span class="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/10">Your infra</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <section id="pricing" class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl sm:p-8 lg:p-10">
       <h2 class="text-2xl font-semibold">Pricing</h2>
+      <p class="mt-2 max-w-3xl text-sm text-slate-600">Simple plans for development, teams, and enterprises. Upgrade when you need more control and reporting.</p>
       <div class="mt-6 grid gap-4 md:grid-cols-3">
-        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
           <h3 class="font-semibold">Starter</h3>
           <p class="mt-2 text-3xl font-semibold text-rose-500">$0</p>
           <p class="mt-2 text-sm text-slate-600">Local development and testing.</p>
+          <ul class="mt-4 space-y-2 text-sm text-slate-700">
+            <li>• Core modes</li>
+            <li>• Local usage</li>
+            <li>• Standard UI</li>
+          </ul>
         </div>
-        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow">
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow transition hover:-translate-y-0.5 hover:shadow-lg">
           <h3 class="font-semibold">Team</h3>
           <p class="mt-2 text-3xl font-semibold text-emerald-600">$49</p>
           <p class="mt-2 text-sm text-slate-600">Shared workspace, admin control, and pipeline analytics.</p>
+          <ul class="mt-4 space-y-2 text-sm text-slate-700">
+            <li>• Admin-managed accounts</li>
+            <li>• User history logs</li>
+            <li>• Metrics &amp; settings presets</li>
+          </ul>
         </div>
-        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
           <h3 class="font-semibold">Enterprise</h3>
           <p class="mt-2 text-3xl font-semibold text-slate-700">Custom</p>
           <p class="mt-2 text-sm text-slate-600">Dedicated support, custom models, and compliance reviews.</p>
+          <ul class="mt-4 space-y-2 text-sm text-slate-700">
+            <li>• Custom policies</li>
+            <li>• Dedicated support</li>
+            <li>• Advanced reporting</li>
+          </ul>
         </div>
       </div>
     </section>
 
     <section id="testimonials" class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl sm:p-8 lg:p-10">
-  <h2 class="text-2xl font-semibold">Testimonials</h2>
-  <div class="mt-6 grid gap-4 md:grid-cols-3">
-    <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-      <p class="text-sm text-slate-700">&ldquo;We finally have a humanization layer that respects our editorial policy and doesn't leak data.&rdquo;</p>
-      <p class="mt-3 text-xs font-semibold text-slate-500">- Editorial Lead</p>
-    </div>
-    <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-      <p class="text-sm text-slate-700">&ldquo;The pipeline transparency makes it easy to trust and adjust the output.&rdquo;</p>
-      <p class="mt-3 text-xs font-semibold text-slate-500">- Product Manager</p>
-    </div>
-    <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-      <p class="text-sm text-slate-700">&ldquo;Admin-only access was non-negotiable for us. This fits perfectly.&rdquo;</p>
-      <p class="mt-3 text-xs font-semibold text-slate-500">- Compliance Officer</p>
-    </div>
-  </div>
-</section>
+      <h2 class="text-2xl font-semibold">Testimonials</h2>
+      <p class="mt-2 max-w-3xl text-sm text-slate-600">Teams use Humanizer to ship natural copy while keeping process and access under control.</p>
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <div class="flex items-center gap-3">
+            <div class="grid h-10 w-10 place-items-center rounded-full bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100">E</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Editorial Lead</div>
+              <div class="text-xs text-slate-500">Publishing</div>
+            </div>
+          </div>
+          <p class="mt-4 text-sm text-slate-700">"We finally have a humanization layer that respects our editorial policy and doesn't leak data."</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <div class="flex items-center gap-3">
+            <div class="grid h-10 w-10 place-items-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">P</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Product Manager</div>
+              <div class="text-xs text-slate-500">SaaS</div>
+            </div>
+          </div>
+          <p class="mt-4 text-sm text-slate-700">"The transparency makes it easy to trust and adjust the output without slowing writers down."</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+          <div class="flex items-center gap-3">
+            <div class="grid h-10 w-10 place-items-center rounded-full bg-amber-50 text-amber-800 ring-1 ring-amber-100">C</div>
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Compliance Officer</div>
+              <div class="text-xs text-slate-500">Governance</div>
+            </div>
+          </div>
+          <p class="mt-4 text-sm text-slate-700">"Admin-only access was non-negotiable for us. This fits perfectly."</p>
+        </div>
+      </div>
+    </section>
 
     <section id="stats" class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl sm:p-8 lg:p-10">
       <h2 class="text-2xl font-semibold">Stats</h2>
@@ -117,6 +327,50 @@
         <div class="rounded-2xl border border-slate-100 bg-white p-5 text-center shadow-sm">
           <div class="text-3xl font-semibold text-sky-600">24/7</div>
           <div class="text-sm text-slate-600">Availability focus</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl sm:p-8 lg:p-10">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 class="text-2xl font-semibold">FAQ</h2>
+          <p class="mt-2 max-w-3xl text-sm text-slate-600">Quick answers to common questions about modes, passes, and access.</p>
+        </div>
+        <button class="rounded-full bg-gradient-to-r from-rose-500 to-amber-400 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-amber-500/20 focus:outline-none focus:ring-2 focus:ring-amber-200/40" id="open-login-cta-2" type="button">Login</button>
+      </div>
+      <div class="mt-6 grid gap-4 lg:grid-cols-2">
+        <details class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <summary class="cursor-pointer font-semibold text-slate-800">What do the modes do?</summary>
+          <p class="mt-3 text-sm text-slate-600"><span class="font-semibold">Balanced</span> targets best quality, <span class="font-semibold">Fast</span> is optimized for long text, and <span class="font-semibold">Stealth</span> adds more variation.</p>
+        </details>
+        <details class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <summary class="cursor-pointer font-semibold text-slate-800">Why multiple passes?</summary>
+          <p class="mt-3 text-sm text-slate-600">More passes can push the writing further from the original draft (slower, but often more natural).</p>
+        </details>
+        <details class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <summary class="cursor-pointer font-semibold text-slate-800">Who can create accounts?</summary>
+          <p class="mt-3 text-sm text-slate-600">Admins create and manage user accounts. There are no public self-signups.</p>
+        </details>
+        <details class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <summary class="cursor-pointer font-semibold text-slate-800">Where do I see my past runs?</summary>
+          <p class="mt-3 text-sm text-slate-600">Open the Profile panel in the workspace to view recent logs (up to 50).</p>
+        </details>
+      </div>
+      <div class="mt-6 rounded-2xl border border-white/60 bg-white/70 p-6 shadow-sm backdrop-blur">
+        <div class="grid gap-4 md:grid-cols-3">
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Best practices</div>
+            <p class="mt-2 text-sm text-slate-600">Use 2-6 short paragraphs for the most natural results.</p>
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Quick workflow</div>
+            <p class="mt-2 text-sm text-slate-600">Paste -&gt; Humanize -&gt; Review -&gt; Copy.</p>
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Need admin access?</div>
+            <p class="mt-2 text-sm text-slate-600">Contact your administrator to get an account provisioned.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -159,6 +413,3 @@
   <script src="js/landing.js"></script>
 </body>
 </html>
-
-
-
