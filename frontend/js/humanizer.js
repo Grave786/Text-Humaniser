@@ -19,6 +19,12 @@ const profileHistoryBtn = document.getElementById("profile-history");
 const profileLogs = document.getElementById("profile-logs");
 const modeSelect = document.getElementById("mode-select");
 const passesSelect = document.getElementById("passes-select");
+const inputWordsEl = document.getElementById("input-words");
+const inputCharsEl = document.getElementById("input-chars");
+const outputWordsEl = document.getElementById("output-words");
+const outputCharsEl = document.getElementById("output-chars");
+const toastEl = document.getElementById("toast");
+const inputWrap = document.getElementById("input-wrap");
 
 const sessionUser = localStorage.getItem("auth_user");
 const sessionRole = localStorage.getItem("auth_role");
@@ -93,11 +99,32 @@ const loadUserLogs = async () => {
   }
 };
 
+let toastTimer = null;
+const showToast = (message) => {
+  if (!toastEl) return;
+  toastEl.textContent = message;
+  toastEl.classList.remove("hidden");
+  if (toastTimer) {
+    clearTimeout(toastTimer);
+  }
+  toastTimer = setTimeout(() => {
+    toastEl.classList.add("hidden");
+  }, 1600);
+};
+
+const countWords = (text) => (text || "").trim().split(/\s+/).filter(Boolean).length;
+
+const setCounts = (text, wordsEl, charsEl) => {
+  if (wordsEl) wordsEl.textContent = String(countWords(text));
+  if (charsEl) charsEl.textContent = String((text || "").length);
+};
+
 const showMetrics = (items) => {
   metrics.innerHTML = "";
   items.forEach((item) => {
     const el = document.createElement("span");
-    el.className = "rounded-full bg-slate-900 px-3 py-1 text-xs text-white";
+    el.className =
+      "rounded-full bg-slate-950/90 px-3 py-1 text-xs font-semibold text-white shadow-sm ring-1 ring-white/10";
     el.textContent = item;
     metrics.appendChild(el);
   });
@@ -110,7 +137,8 @@ const showStages = (stageData) => {
   }
   Object.entries(stageData).forEach(([key, value]) => {
     const section = document.createElement("div");
-    section.className = "rounded-2xl border border-slate-200 bg-white p-4";
+    section.className =
+      "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm";
     const title = document.createElement("h3");
     title.className = "text-sm font-semibold";
     title.textContent = key.replace(/_/g, " ");
@@ -143,6 +171,35 @@ const setProcessing = (isProcessing) => {
   }
 };
 
+const setOutputVisible = (isVisible) => {
+  if (!outputWrap || !inputWrap) return;
+
+  if (isVisible) {
+    inputWrap.classList.remove("lg:col-span-12");
+    inputWrap.classList.add("lg:col-span-6");
+
+    if (outputWrap.classList.contains("hidden")) {
+      outputWrap.classList.remove("hidden");
+      outputWrap.classList.remove("opacity-100", "translate-y-0");
+      outputWrap.classList.add("opacity-0", "translate-y-3");
+      requestAnimationFrame(() => {
+        outputWrap.classList.remove("opacity-0", "translate-y-3");
+        outputWrap.classList.add("opacity-100", "translate-y-0");
+      });
+    } else {
+      outputWrap.classList.remove("opacity-0", "translate-y-3");
+      outputWrap.classList.add("opacity-100", "translate-y-0");
+    }
+    return;
+  }
+
+  inputWrap.classList.remove("lg:col-span-6");
+  inputWrap.classList.add("lg:col-span-12");
+  outputWrap.classList.add("opacity-0", "translate-y-3");
+  outputWrap.classList.remove("opacity-100", "translate-y-0");
+  outputWrap.classList.add("hidden");
+};
+
 const handleHumanize = async () => {
   const text = inputText.value.trim();
   if (!text) {
@@ -173,9 +230,10 @@ const handleHumanize = async () => {
       throw new Error(data.error);
     }
 
-    outputWrap.classList.remove("hidden");
+    setOutputVisible(true);
 
     outputText.textContent = data.humanized_text;
+    setCounts(outputText.textContent, outputWordsEl, outputCharsEl);
     showStages(null);
     const items = [
       `ai: ${data.detector_ai_probability}`,
@@ -198,8 +256,9 @@ const handleHumanize = async () => {
     showMetrics(items);
     setProcessing(false);
   } catch (err) {
-    outputWrap.classList.remove("hidden");
+    setOutputVisible(true);
     outputText.textContent = err.message || "Request failed";
+    setCounts(outputText.textContent, outputWordsEl, outputCharsEl);
     showStages(null);
     setProcessing(false);
   }
@@ -216,17 +275,23 @@ const handleLogout = (event) => {
 
 humanizeBtn.addEventListener("click", handleHumanize);
 logoutBtn.addEventListener("click", handleLogout);
+inputText.addEventListener("input", () => {
+  setCounts(inputText.value, inputWordsEl, inputCharsEl);
+});
 clearBtn.addEventListener("click", () => {
   inputText.value = "";
   outputText.textContent = "Run the pipeline to see results.";
-  outputWrap.classList.add("hidden");
   showStages(null);
   showMetrics([]);
   setProcessing(false);
+  setCounts("", inputWordsEl, inputCharsEl);
+  setCounts(outputText.textContent, outputWordsEl, outputCharsEl);
+  setOutputVisible(false);
 });
 copyBtn.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(outputText.textContent);
+    showToast("Copied to clipboard");
   } catch {
     // ignore
   }
@@ -238,3 +303,7 @@ profileBtn.addEventListener("click", () => {
 });
 closeProfileBtn.addEventListener("click", closeProfile);
 profileHistoryBtn.addEventListener("click", loadUserLogs);
+
+setCounts(inputText.value, inputWordsEl, inputCharsEl);
+setCounts(outputText.textContent, outputWordsEl, outputCharsEl);
+setOutputVisible(false);

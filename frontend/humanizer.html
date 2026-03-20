@@ -9,9 +9,20 @@
     @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap");
     body { font-family: "Outfit", system-ui, sans-serif; }
     h1, h2, h3 { font-family: "Playfair Display", serif; }
+    html { scroll-behavior: smooth; }
+    @keyframes floaty { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }
+    .float-slow { animation: floaty 10s ease-in-out infinite; }
+    .float-slower { animation: floaty 16s ease-in-out infinite; }
+    @keyframes glowPulse { 0%,100% { opacity: .55 } 50% { opacity: .95 } }
+    .glow-pulse { animation: glowPulse 4.8s ease-in-out infinite; }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-100 text-slate-900">
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -left-28 -top-28 h-80 w-80 rounded-full bg-indigo-300/35 blur-3xl float-slower"></div>
+    <div class="absolute -right-24 top-24 h-72 w-72 rounded-full bg-emerald-300/25 blur-3xl float-slow"></div>
+    <div class="absolute left-1/3 top-[28rem] h-96 w-96 rounded-full bg-sky-300/20 blur-3xl float-slower"></div>
+  </div>
   <header class="sticky top-0 z-20 w-full bg-slate-950 text-slate-100 shadow-xl">
     <div class="flex w-full items-center justify-between gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-5 lg:px-8">
       <div class="text-xl font-semibold text-emerald-300">Humanizer</div>
@@ -30,23 +41,73 @@
     </div>
   </header>
 
-  <main class="grid w-full gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:px-8" id="workspace">
-    <section class="rounded-3xl border border-white/60 bg-white/90 p-5 shadow-2xl sm:p-8">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <h2 class="text-2xl font-semibold">Input</h2>
-        <span id="status-pill" class="hidden items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
-          <span class="h-2 w-2 animate-pulse rounded-full bg-indigo-500"></span>
-          Humanizing...
+  <main class="grid w-full gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-12 lg:px-10 xl:px-14 2xl:px-20" id="workspace">
+    <section class="relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur sm:p-10 lg:col-span-12 2xl:p-12">
+      <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-emerald-400/10"></div>
+      <div class="absolute inset-0 opacity-70 [background:radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.20),transparent_40%),radial-gradient(circle_at_85%_30%,rgba(16,185,129,0.18),transparent_42%),radial-gradient(circle_at_50%_80%,rgba(56,189,248,0.16),transparent_45%)] glow-pulse"></div>
+      <div class="relative">
+        <span class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-300 shadow">
+          <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
+          Workspace
         </span>
+        <h1 class="mt-5 text-4xl font-semibold text-slate-900">Humanize drafts with a cleaner, more natural voice.</h1>
+        <p class="mt-4 max-w-3xl text-base text-slate-600">Paste your text, pick a mode, run multiple passes, and copy the final output. Metrics help you track what changed without losing your original meaning.</p>
+        <div class="mt-6 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Fast workflow</div>
+            <div class="mt-1 text-sm text-slate-700">Input -&gt; Humanize -&gt; Copy</div>
+          </div>
+          <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Configurable</div>
+            <div class="mt-1 text-sm text-slate-700">Modes + multi-pass rewrites</div>
+          </div>
+          <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Traceable</div>
+            <div class="mt-1 text-sm text-slate-700">Quick metrics after each run</div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid gap-3 lg:grid-cols-12">
+          <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur lg:col-span-8">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Quick tips</div>
+            <ul class="mt-2 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-indigo-400"></span><span>Best results with 2–6 short paragraphs.</span></li>
+              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-emerald-400"></span><span>Use <span class="font-semibold">Balanced</span> for quality, <span class="font-semibold">Fast</span> for long drafts.</span></li>
+              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-sky-400"></span><span>More passes = more rewrites (slower).</span></li>
+              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-rose-400"></span><span>Copy output after you like the tone.</span></li>
+            </ul>
+          </div>
+          <div class="rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur lg:col-span-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Get started</div>
+            <p class="mt-2 text-sm text-slate-700">Paste your draft in the input box, then click Humanize.</p>
+            <a href="#input-wrap" class="mt-3 inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:shadow-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-300/50">Jump to input</a>
+          </div>
+        </div>
       </div>
-      <div class="mt-4 grid gap-3">
-        <label class="text-sm text-slate-600" for="input-text">Paste your text</label>
-        <textarea id="input-text" class="min-h-[180px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:outline-none" placeholder="Drop raw text here..."></textarea>
+    </section>
+
+    <section id="input-wrap" class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500/25 via-white/10 to-emerald-400/20 p-[1px] shadow-2xl lg:col-span-12">
+      <div class="relative h-full rounded-3xl border border-white/60 bg-white/80 p-5 backdrop-blur sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h2 class="text-2xl font-semibold">Input</h2>
+          <span id="status-pill" class="hidden items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+            <span class="h-2 w-2 animate-pulse rounded-full bg-indigo-500"></span>
+            Humanizing...
+          </span>
+        </div>
+        <div class="mt-4 grid gap-3">
+        <div class="flex flex-wrap items-end justify-between gap-2">
+          <label class="text-sm text-slate-600" for="input-text">Paste your text</label>
+          <div class="text-xs font-medium text-slate-500">
+            <span id="input-words">0</span> words / <span id="input-chars">0</span> chars
+          </div>
+        </div>
+        <textarea id="input-text" class="min-h-[220px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-800 shadow-sm focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-300/40 sm:min-h-[260px] lg:min-h-[420px]" placeholder="Drop raw text here..."></textarea>
 
         <div class="grid gap-3 md:grid-cols-2">
           <div>
             <label class="text-sm text-slate-600" for="mode-select">Mode</label>
-            <select id="mode-select" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">
+            <select id="mode-select" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-300/40">
               <option value="balanced" selected>Balanced (best quality)</option>
               <option value="fast">Fast (long text)</option>
               <option value="stealth">Stealth (more random)</option>
@@ -54,7 +115,7 @@
           </div>
           <div>
             <label class="text-sm text-slate-600" for="passes-select">Passes</label>
-            <select id="passes-select" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">
+            <select id="passes-select" class="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-300/40">
               <option value="1">1 pass</option>
               <option value="2">2 passes</option>
               <option value="3" selected>3 passes</option>
@@ -63,25 +124,37 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <button id="humanize-btn" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-6 py-3 text-sm font-semibold text-white shadow-lg">Humanize</button>
-          <button id="clear-btn" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700">Clear</button>
-          <button id="copy-btn" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700">Copy output</button>
+          <button id="humanize-btn" class="rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/10 transition hover:-translate-y-0.5 hover:shadow-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-300/50 disabled:cursor-not-allowed disabled:opacity-60">Humanize</button>
+          <button id="clear-btn" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-300/40">Clear</button>
+          <button id="copy-btn" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-300/40">Copy output</button>
         </div>
         <div id="status-line" class="hidden">
           <span class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1 text-xs font-semibold text-indigo-600 shadow-sm">
             Humanizing...
           </span>
         </div>
+        </div>
       </div>
     </section>
 
-    <section class="rounded-3xl border border-white/60 bg-white/90 p-5 shadow-2xl hidden sm:p-8" id="output-wrap">
-      <h2 class="text-2xl font-semibold">Output</h2>
-      <div id="output" class="mt-4 min-h-[200px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800">Run the pipeline to see results.</div>
-      <div id="metrics" class="mt-4 flex flex-wrap gap-2"></div>
-      <div id="stages" class="mt-4 space-y-4"></div>
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-400/25 via-white/10 to-indigo-500/20 p-[1px] shadow-2xl hidden opacity-0 translate-y-3 transition duration-300 ease-out lg:col-span-6 lg:sticky lg:top-24 lg:self-start" id="output-wrap">
+      <div class="relative h-full rounded-3xl border border-white/60 bg-white/80 p-5 backdrop-blur sm:p-8">
+        <div class="flex flex-wrap items-end justify-between gap-2">
+          <h2 class="text-2xl font-semibold">Output</h2>
+          <div class="text-xs font-medium text-slate-500">
+            <span id="output-words">0</span> words / <span id="output-chars">0</span> chars
+          </div>
+        </div>
+        <div id="output" class="mt-4 min-h-[220px] whitespace-pre-wrap break-words rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-800 shadow-sm sm:min-h-[260px] lg:min-h-[320px]">Run the pipeline to see results.</div>
+        <div id="metrics" class="mt-4 flex flex-wrap gap-2"></div>
+        <div id="stages" class="mt-4 space-y-4"></div>
+      </div>
     </section>
   </main>
+
+  <div id="toast" class="fixed bottom-6 right-6 z-40 hidden max-w-sm rounded-2xl border border-white/40 bg-slate-950/90 px-4 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur">
+    Copied to clipboard
+  </div>
 
   <div class="fixed inset-0 z-30 hidden items-center justify-center bg-slate-950/60 p-4 sm:p-6" id="profile-modal">
     <div class="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-8">
@@ -89,18 +162,18 @@
         <h3 class="text-xl font-semibold">Profile</h3>
         <button id="close-profile" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-rose-600" type="button" aria-label="Close">X</button>
       </div>
-      <div class="mt-4 grid gap-4 md:grid-cols-2">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div class="text-xs uppercase text-slate-500">Account</div>
-          <div class="mt-2 text-sm text-slate-700"><span class="font-semibold">Username:</span> <span id="profile-username"></span></div>
-          <div class="mt-1 text-sm text-slate-700"><span class="font-semibold">Email:</span> <span id="profile-email"></span></div>
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs uppercase text-slate-500">Account</div>
+            <div class="mt-2 text-sm text-slate-700"><span class="font-semibold">Username:</span> <span id="profile-username"></span></div>
+            <div class="mt-1 text-sm text-slate-700"><span class="font-semibold">Email:</span> <span id="profile-email"></span></div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs uppercase text-slate-500">History</div>
+            <p class="mt-2 text-sm text-slate-600">View your last 50 humanizations.</p>
+            <button id="profile-history" class="mt-3 rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:shadow-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-300/50" type="button">View History</button>
+          </div>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div class="text-xs uppercase text-slate-500">History</div>
-          <p class="mt-2 text-sm text-slate-600">View your last 50 humanizations.</p>
-          <button id="profile-history" class="mt-3 rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-5 py-2 text-sm font-semibold text-white shadow" type="button">View History</button>
-        </div>
-      </div>
       <div class="mt-6">
         <h4 class="text-sm font-semibold text-slate-700">Recent Logs</h4>
         <div id="profile-logs" class="mt-3 max-h-64 space-y-3 overflow-auto rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700"></div>
