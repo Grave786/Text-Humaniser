@@ -388,7 +388,7 @@ def humanize(payload: HumanizeRequest) -> dict:
         },
     }
 
-
+# Endpoint for humanization debugging, which provides detailed information about each stage of the humanization pipeline, including the original text, rewritten text, styled text, refined text, and the final humanized text. This endpoint is useful for understanding how the input text is transformed at each stage and for diagnosing any issues in the pipeline.
 @app.post("/humanize/debug")
 def humanize_debug(payload: HumanizeDebugRequest) -> dict:
     original = payload.text.strip()
@@ -436,7 +436,7 @@ def humanize_debug(payload: HumanizeDebugRequest) -> dict:
         "stages": stage_payload,
     }
 
-
+# Endpoint for user creation, which allows new users to register by providing a username, password, email, and role. The endpoint validates the input, hashes the password using passlib if available, and stores the user information in the MongoDB database. It also handles potential errors such as duplicate usernames and database connection issues.
 @app.post("/users")
 def create_user(payload: UserCreateRequest) -> dict:
     username = payload.username.strip()
@@ -476,7 +476,7 @@ def create_user(payload: UserCreateRequest) -> dict:
 
     return {"id": str(result.inserted_id), "username": username, "role": role}
 
-
+# Endpoint for user login, which validates the provided username and password against the stored user records in the database. If the credentials are valid, it returns a success response with the user's information; otherwise, it returns an error message indicating invalid credentials or other issues such as missing fields or database connection problems.
 @app.post("/auth/login")
 def login(payload: AuthLoginRequest) -> dict:
     username = payload.username.strip()
@@ -504,7 +504,7 @@ def login(payload: AuthLoginRequest) -> dict:
         "username": user.get("username"),
         "role": user.get("role"),
     }
-
+# Endpoint to get user profile information by username, which retrieves the user record from the database and returns it in a sanitized format suitable for API responses. This endpoint allows users to view their own profile information, such as username, email, role, and creation date.
 @app.get("/users/profile")
 def user_profile(username: str) -> dict:
     if not username:
@@ -519,6 +519,7 @@ def user_profile(username: str) -> dict:
         return {"error": "User not found."}
     return _sanitize_user(user)
 
+# Endpoint to list scans for a specific user, which retrieves scan records from the database based on the provided username and returns them in a sanitized format suitable for API responses. This endpoint allows users to view their own scans and their details, such as the original text, humanized text, and AI detection probability.
 @app.get("/users/scans")
 def user_scans(username: str | None = None) -> dict:
     db = get_mongo_db()
@@ -531,7 +532,7 @@ def user_scans(username: str | None = None) -> dict:
     scans = list(db.scans.find(query).sort("created_at", -1).limit(50))
     return {"items": [_sanitize_scan(s) for s in scans]}
 
-
+# Admin endpoint to list users, which retrieves user records from the database and returns them in a sanitized format suitable for API responses. This endpoint allows administrators to view the list of users and their basic information, such as username, email, role, and creation date.
 @app.get("/admin/users")
 def list_users() -> dict:
     db = get_mongo_db()
@@ -543,6 +544,7 @@ def list_users() -> dict:
     users = list(db.users.find().sort("created_at", -1))
     return {"items": [_sanitize_user(u) for u in users]}
 
+# Admin endpoint to view basic statistics about users and scans, providing insights into the total number of users, admins, scans, and the timestamp of the last scan. This endpoint can be used for monitoring the application's usage and growth over time.
 @app.get("/admin/stats")
 def admin_stats() -> dict:
     db = get_mongo_db()
@@ -564,7 +566,7 @@ def admin_stats() -> dict:
         "last_scan_at": last_scan_at,
     }
 
-
+# Admin endpoint to update user information by username. This endpoint allows administrators to update a user's username, email, and password, with appropriate validation and error handling. It also ensures that related scan records are kept in sync if the username is changed.
 @app.patch("/admin/users/{username}")
 def update_user(username: str, payload: AdminUserUpdateRequest) -> dict:
     db = get_mongo_db()
@@ -598,7 +600,7 @@ def update_user(username: str, payload: AdminUserUpdateRequest) -> dict:
 
     return {"ok": True}
 
-
+# Admin endpoint to delete a user by username. This endpoint removes the user record from the database and can also be extended to remove or anonymize related scan records if needed, ensuring that user data is properly managed and that administrators have control over user accounts.
 @app.delete("/admin/users/{username}")
 def delete_user(username: str) -> dict:
     db = get_mongo_db()
@@ -612,7 +614,7 @@ def delete_user(username: str) -> dict:
         return {"error": "User not found."}
     return {"ok": True}
 
-
+# Admin endpoint to list scans, which can be filtered by username. This endpoint retrieves scan records from the database and returns them in a sanitized format suitable for API responses, allowing administrators to view recent scans and their details.
 @app.get("/admin/scans")
 def list_scans(username: str | None = None) -> dict:
     db = get_mongo_db()
