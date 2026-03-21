@@ -45,6 +45,7 @@ let allLogs = [];
 let dashboardStats = null;
 let usersLoaded = false;
 
+
 const role = localStorage.getItem("auth_role");
 if (role !== "admin") {
   window.location.href = "humanizer.html";
@@ -313,6 +314,11 @@ const handleCreate = async () => {
   }
   createStatus.textContent = "User created.";
   await loadUsers();
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("role").value = "user";
+  document.getElementById("username").focus();
 };
 
 const handleUpdate = async () => {
