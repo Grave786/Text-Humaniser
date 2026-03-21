@@ -543,6 +543,27 @@ def list_users() -> dict:
     users = list(db.users.find().sort("created_at", -1))
     return {"items": [_sanitize_user(u) for u in users]}
 
+@app.get("/admin/stats")
+def admin_stats() -> dict:
+    db = get_mongo_db()
+    if db is None:
+        status = get_mongo_status()
+        reason = status.get("last_error") or "Unknown"
+        return {"error": f"MongoDB is not connected. Reason: {reason}"}
+
+    users_total = int(db.users.count_documents({}))
+    admins_total = int(db.users.count_documents({"role": "admin"}))
+    scans_total = int(db.scans.count_documents({}))
+    last_scan = db.scans.find_one({}, sort=[("created_at", -1)])
+    last_scan_at = last_scan.get("created_at") if isinstance(last_scan, dict) else None
+
+    return {
+        "users_total": users_total,
+        "admins_total": admins_total,
+        "scans_total": scans_total,
+        "last_scan_at": last_scan_at,
+    }
+
 
 @app.patch("/admin/users/{username}")
 def update_user(username: str, payload: AdminUserUpdateRequest) -> dict:

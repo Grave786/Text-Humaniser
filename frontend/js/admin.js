@@ -1,4 +1,4 @@
-const logoutBtn = document.getElementById("logout-btn");
+﻿const logoutBtn = document.getElementById("logout-btn");
 const createBtn = document.getElementById("create-btn");
 const createStatus = document.getElementById("create-status");
 const usersBody = document.getElementById("users-body");
@@ -42,6 +42,8 @@ const profileLogs = document.getElementById("profile-logs");
 let selectedUser = null;
 let allUsers = [];
 let allLogs = [];
+let dashboardStats = null;
+let usersLoaded = false;
 
 const role = localStorage.getItem("auth_role");
 if (role !== "admin") {
@@ -66,14 +68,35 @@ const setText = (el, value) => {
 };
 
 const updateUserStats = () => {
-  setText(statUsersEl, String(allUsers.length));
-  setText(statAdminsEl, String(allUsers.filter((u) => (u?.role || "") === "admin").length));
+  const usersTotal = usersLoaded ? allUsers.length : dashboardStats?.users_total;
+  const adminsTotal = usersLoaded
+    ? allUsers.filter((u) => (u?.role || "") === "admin").length
+    : dashboardStats?.admins_total;
+  setText(statUsersEl, String(usersTotal ?? allUsers.length));
+  setText(
+    statAdminsEl,
+    String(adminsTotal ?? allUsers.filter((u) => (u?.role || "") === "admin").length)
+  );
 };
 
 const updateLogStats = () => {
-  setText(statLogsEl, String(allLogs.length));
-  const last = allLogs[0]?.created_at;
+  const totalScans = dashboardStats?.scans_total ?? allLogs.length;
+  setText(statLogsEl, String(totalScans));
+  const last = dashboardStats?.last_scan_at ?? allLogs[0]?.created_at;
   setText(statLastScanEl, last ? formatDate(last) : "—");
+};
+
+const loadStats = async () => {
+  try {
+    const res = await fetch(window.apiUrl("/admin/stats"));
+    const data = await res.json();
+    if (data?.error) return;
+    dashboardStats = data;
+    updateUserStats();
+    updateLogStats();
+  } catch {
+    // ignore
+  }
 };
 
 const renderUsers = (items) => {
@@ -247,6 +270,7 @@ const loadUsers = async () => {
     return;
   }
   allUsers = Array.isArray(data.items) ? data.items : [];
+  usersLoaded = true;
   updateUserStats();
   applyUserFilter();
 };
@@ -369,5 +393,9 @@ if (adminUsernameEl) {
   adminUsernameEl.textContent = sessionUser || "";
 }
 
-loadUsers();
-loadLogs();
+(async () => {
+  await loadStats();
+  await loadUsers();
+  await loadLogs();
+})();
+
