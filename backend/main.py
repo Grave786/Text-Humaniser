@@ -219,7 +219,7 @@ def _run_humanize_pipeline(
         timings["finalize_ms"] = (time.perf_counter() - t0) * 1000.0
         if capture_stages:
             stage_texts["readability_mixed"] = readability_text
-    else:  # fast
+    else:  # fast mode applies minimal transformations to preserve coherence and maximize speed, while still benefiting from the rewriter's capabilities.
         t0 = time.perf_counter()
         rewritten_text = " ".join(current).strip()
         readability_text = readability_mixer(rewritten_text)
