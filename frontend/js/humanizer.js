@@ -35,6 +35,7 @@ if (sessionRole === "admin") {
   adminLink.style.display = "inline";
 }
 
+
 const openProfile = () => {
   profileModal.classList.remove("hidden");
   profileModal.classList.add("flex");
