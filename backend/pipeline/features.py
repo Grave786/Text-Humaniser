@@ -29,6 +29,15 @@ BERT_DISABLED = os.getenv("BERT_DISABLED", "1" if FREE_TIER_MODE else "0").strip
 ENABLE_PERPLEXITY = os.getenv("ENABLE_PERPLEXITY", "0").strip().lower() in {"1", "true", "yes", "y", "on"}
 PERPLEXITY_MODEL_NAME = os.getenv("PERPLEXITY_MODEL_NAME", "gpt2").strip()
 
+# Deployment/perf knobs (safe defaults: no network, CPU-first)
+NLTK_DOWNLOAD = os.getenv("NLTK_DOWNLOAD", "0").strip().lower() in {"1", "true", "yes", "on"}
+ORT_PROVIDERS = os.getenv("ORT_PROVIDERS", "").strip()
+ORT_INTRA_OP_THREADS = int(os.getenv("ORT_INTRA_OP_THREADS", "0") or "0")
+ORT_INTER_OP_THREADS = int(os.getenv("ORT_INTER_OP_THREADS", "0") or "0")
+ORT_PARALLEL = os.getenv("ORT_PARALLEL", "1").strip().lower() in {"1", "true", "yes", "on"}
+ORT_ENABLE_MEM_PATTERN = os.getenv("ORT_ENABLE_MEM_PATTERN", "0").strip().lower() in {"1", "true", "yes", "on"}
+ORT_ENABLE_CPU_MEM_ARENA = os.getenv("ORT_ENABLE_CPU_MEM_ARENA", "0").strip().lower() in {"1", "true", "yes", "on"}
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Utility function to print warnings to stderr with a consistent prefix for easier debugging and monitoring of the feature extraction process.
@@ -96,6 +105,9 @@ def _ensure_nltk_resources() -> bool:
         try:
             nltk.data.find(resource_path)
         except LookupError:
+            if not NLTK_DOWNLOAD:
+                ok = False
+                continue
             try:
                 nltk.download(resource_name, quiet=True)
             except Exception:
@@ -130,14 +142,57 @@ def _get_onnx_session():
     except Exception as e:
         raise RuntimeError("onnxruntime is required for BERT_BACKEND=onnx.") from e
 
+    def _pick_providers() -> list[str]:
+        available: list[str]
+        try:
+            available = list(ort.get_available_providers() or [])
+        except Exception:
+            available = []
+
+        if ORT_PROVIDERS:
+            requested = [p.strip() for p in ORT_PROVIDERS.split(",") if p.strip()]
+            picked = [p for p in requested if p in available]
+        else:
+            preferred_order = [
+                "TensorrtExecutionProvider",
+                "CUDAExecutionProvider",
+                "DmlExecutionProvider",
+                "CoreMLExecutionProvider",
+                "OpenVINOExecutionProvider",
+                "CPUExecutionProvider",
+            ]
+            picked = [p for p in preferred_order if p in available]
+
+        if "CPUExecutionProvider" in available and "CPUExecutionProvider" not in picked:
+            picked.append("CPUExecutionProvider")
+        if not picked:
+            picked = ["CPUExecutionProvider"]
+        return picked
+
     onnx_path, _data_path = _ensure_onnx_present()
     sess_options = ort.SessionOptions()
     try:
-        sess_options.enable_mem_pattern = False
-        sess_options.enable_cpu_mem_arena = False
+        sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
     except Exception:
         pass
-    return ort.InferenceSession(str(onnx_path), sess_options=sess_options, providers=["CPUExecutionProvider"])
+    try:
+        if ORT_INTRA_OP_THREADS > 0:
+            sess_options.intra_op_num_threads = ORT_INTRA_OP_THREADS
+        if ORT_INTER_OP_THREADS > 0:
+            sess_options.inter_op_num_threads = ORT_INTER_OP_THREADS
+    except Exception:
+        pass
+    try:
+        if ORT_PARALLEL:
+            sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
+    except Exception:
+        pass
+    try:
+        sess_options.enable_mem_pattern = bool(ORT_ENABLE_MEM_PATTERN)
+        sess_options.enable_cpu_mem_arena = bool(ORT_ENABLE_CPU_MEM_ARENA)
+    except Exception:
+        pass
+    return ort.InferenceSession(str(onnx_path), sess_options=sess_options, providers=_pick_providers())
 
 # Function to warm up the inference stack by loading the BERT tokenizer and ONNX session (if using ONNX backend) during API startup. This helps reduce latency for the first inference request by ensuring that necessary resources are loaded and ready to use.
 def warmup_inference_stack() -> None:

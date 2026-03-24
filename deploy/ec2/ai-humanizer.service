@@ -1,0 +1,26 @@
+[Unit]
+Description=AI Humanizer API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ai-humanizer
+
+# Recommended: create a dedicated user and set ownership of /opt/ai-humanizer.
+# User=aihumanizer
+
+Environment=PORT=8000
+Environment=WORKERS=2
+Environment=LOG_LEVEL=info
+Environment=GUNICORN_TIMEOUT=120
+
+# Optional env file (DB creds, model knobs, etc.)
+EnvironmentFile=-/opt/ai-humanizer/.env
+
+ExecStart=/bin/bash -lc '/opt/ai-humanizer/venv/bin/gunicorn -k uvicorn.workers.UvicornWorker backend.main:app --bind 0.0.0.0:${PORT} --workers ${WORKERS} --timeout ${GUNICORN_TIMEOUT} --log-level ${LOG_LEVEL}'
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+
