@@ -84,6 +84,7 @@ Humanize endpoint: `POST /humanize`
 
 ### EC2 (recommended production setup)
 
+- This is the simplest production setup for AWS EC2 (no Docker/Procfile required).
 - Create a venv on the instance and install deps:
 
 ```bash
@@ -104,16 +105,19 @@ sudo systemctl enable --now ai-humanizer
 sudo systemctl status ai-humanizer
 ```
 
-### Docker
+### Docker (optional)
+
+- Not needed for EC2 systemd deploys, but useful for ECS/Fargate/App Runner or if you prefer containerizing.
 
 ```bash
 docker build -t ai-humanizer .
 docker run -p 8000:8000 -e PORT=8000 ai-humanizer
 ```
 
-### Procfile platforms (Heroku/Render/Railway)
+### Procfile platforms (optional)
 
-This repo includes a `Procfile` that runs `python -m backend`.
+- Not needed for EC2, but some platforms can use it to start the app.
+- The `Procfile` runs `python -m backend`.
 
 ## Notes
 
