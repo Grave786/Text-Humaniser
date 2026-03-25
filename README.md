@@ -58,6 +58,25 @@ python -m backend
 Health check: `GET /health`
 Humanize endpoint: `POST /humanize`
 
+## Frontend JavaScript visibility (important)
+
+You cannot truly “hide” JavaScript that runs in the browser: anything shipped to the client can be viewed in DevTools.
+
+What you *can* do:
+
+- Keep secrets/sensitive logic on the server (FastAPI) and call it via API.
+- Ship only bundled + minified + obfuscated JS to make it harder to read.
+
+This repo builds obfuscated bundles into `frontend/dist/` and the HTML pages load those bundles.
+
+Build commands:
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
 ## Performance and quality knobs
 
 - Use request `mode`:

@@ -16,6 +16,14 @@ dist/
 .eggs/
 pip-wheel-metadata/
 
+# Node / frontend tooling
+frontend/node_modules/
+npm-cache/
+
+# Keep built frontend bundles tracked (HTML loads from frontend/dist)
+!frontend/dist/
+!frontend/dist/*.js
+
 # Test and coverage artifacts
 .pytest_cache/
 .coverage
